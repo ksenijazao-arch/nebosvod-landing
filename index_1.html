@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Небосвод: твоя натальная карта в Telegram</title>
+<meta name="description" content="Напиши боту дату, время и место рождения и получи бесплатный разбор своей натальной карты. Небосвод в Telegram.">
+<meta property="og:title" content="Небосвод: твоя натальная карта в Telegram">
+<meta property="og:description" content="Дата, время и место рождения. Через минуту у тебя на руках личный разбор карты. Первый разбор бесплатно.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b1026">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1026;
+  --bg2:#141a3d;
+  --gold:#e8c882;
+  --gold-soft:#f3dfb0;
+  --text:#eef0fa;
+  --muted:#a9afd0;
+  --line:rgba(232,200,130,.22);
+  --card:rgba(255,255,255,.045);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:#0b1026}
+body{
+  font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color:var(--text);
+  background:radial-gradient(1200px 800px at 50% -10%,var(--bg2),transparent 70%) no-repeat;min-height:100vh;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main,footer{position:relative;z-index:1}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+
+/* hero */
+.hero{min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:56px 0 40px}
+.hero-inner{max-width:680px;margin:0 auto}
+.brand{font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
+.wheel{width:150px;height:150px;margin:0 auto 30px;display:block;animation:spin 90s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-weight:600;
+  font-size:clamp(38px,8vw,64px);
+  line-height:1.08;
+  margin-bottom:22px;
+  color:var(--gold-soft);
+}
+.lead{font-size:clamp(17px,2.6vw,20px);color:var(--text);opacity:.92;margin-bottom:34px;max-width:560px;margin-left:auto;margin-right:auto}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(135deg,#f3dfb0,#d9b062);
+  color:#1a1633;font-weight:600;font-size:18px;
+  padding:18px 40px;border-radius:999px;text-decoration:none;
+  box-shadow:0 10px 40px rgba(232,200,130,.28);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 50px rgba(232,200,130,.42)}
+.btn svg{width:22px;height:22px;flex:none}
+.note{margin-top:18px;font-size:14px;color:var(--muted)}
+
+/* sections */
+section{padding:72px 0}
+h2{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-weight:600;
+  font-size:clamp(30px,5vw,42px);
+  color:var(--gold-soft);
+  text-align:center;
+  margin-bottom:14px;
+  line-height:1.15;
+}
+.sub{text-align:center;color:var(--muted);max-width:560px;margin:0 auto 44px}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;counter-reset:s}
+.step{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:26px 22px;counter-increment:s;
+}
+.step::before{
+  content:counter(s);
+  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--gold);color:var(--gold);
+  font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;
+  margin-bottom:16px;
+}
+.step h3{font-size:17px;font-weight:600;margin-bottom:6px}
+.step p{font-size:15px;color:var(--muted)}
+
+.more{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px;
+}
+.card .tag{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.card h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:8px;color:var(--gold-soft)}
+.card p{font-size:15px;color:var(--muted)}
+
+.final{text-align:center}
+.final p{max-width:520px;margin:0 auto 30px;color:var(--muted)}
+
+footer{padding:36px 0 48px;border-top:1px solid var(--line);text-align:center;font-size:13px;color:var(--muted)}
+footer p{max-width:620px;margin:0 auto 6px}
+
+@media (prefers-reduced-motion:reduce){.wheel{animation:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="brand">Небосвод</div>
+
+        <svg class="wheel" viewBox="0 0 200 200" fill="none" stroke="#e8c882" stroke-width="1" aria-hidden="true">
+          <circle cx="100" cy="100" r="96" opacity=".9"/>
+          <circle cx="100" cy="100" r="74" opacity=".55"/>
+          <circle cx="100" cy="100" r="20" opacity=".8"/>
+          <g id="ticks" opacity=".7"></g>
+          <g opacity=".35">
+            <path d="M100 26 L164 137 L36 137 Z"/>
+            <path d="M100 174 L36 63 L164 63 Z"/>
+          </g>
+          <circle cx="100" cy="100" r="3" fill="#e8c882" stroke="none"/>
+        </svg>
+
+        <h1>Твоя натальная карта в одном сообщении</h1>
+        <p class="lead">Напиши боту дату, время и место рождения. Через минуту у тебя на руках личный разбор: кто ты по звёздам и что в тебе заложено с рождения. Первый разбор бесплатно.</p>
+
+        <a class="btn" href="https://t.me/nebosvod_astro_bot" data-cta>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3.3 2.6 10.6c-1.3.5-1.3 1.3-.2 1.6l4.8 1.5 1.8 5.7c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.3-2.2 4.700 3.500c.9.5 1.500.2 1.800-.8L23 4.900c.3-1.300-.5-1.900-1.500-1.600ZM8.400 13.200l10.300-6.500c.5-.3.9-.1.5.2l-8.400 7.600-.3 3.600Z"/></svg>
+          Открыть бота в Telegram
+        </a>
+        <p class="note">Откроется Telegram. Регистрация не нужна.</p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>Как это работает</h2>
+      <p class="sub">Всё происходит в переписке, без анкет и лишних форм.</p>
+      <div class="steps">
+        <div class="step"><h3>Нажимаешь кнопку</h3><p>Бот откроется прямо в Telegram, нажми «Запустить».</p></div>
+        <div class="step"><h3>Пишешь данные рождения</h3><p>Дата, время и город. Если время не знаешь, бот подскажет, как быть.</p></div>
+        <div class="step"><h3>Получаешь разбор</h3><p>Карта рассчитывается по твоим данным, а текст пишется именно про тебя.</p></div>
+        <div class="step"><h3>Возвращаешься за большим</h3><p>Когда захочется узнать, что ждёт завтра или как вы совпадаете с близким человеком.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Что ещё умеет Небосвод</h2>
+      <p class="sub">Кроме бесплатного разбора карты в боте есть отдельные вещи на каждый день и на важные случаи.</p>
+      <div class="more">
+        <div class="card"><div class="tag">Каждый день</div><h3>Что ждёт меня завтра</h3><p>Короткий личный прогноз на следующий день, рассчитанный по твоей карте.</p></div>
+        <div class="card"><div class="tag">Для двоих</div><h3>Совместимость</h3><p>Введи данные близкого человека и узнай, как ваши карты звучат вместе.</p></div>
+        <div class="card"><div class="tag">Нумерология</div><h3>Число жизненного пути</h3><p>Одна цифра, в которой собрано много о твоём характере и дороге.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2>Твоя карта уже написана, осталось её прочитать</h2>
+      <p>Больше тысячи человек уже открыли своё небо в Небосводе. Первый разбор бесплатный.</p>
+      <a class="btn" href="https://t.me/nebosvod_astro_bot" data-cta>Получить свой разбор</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Астрологические разборы носят развлекательный и рекомендательный характер и не заменяют консультацию врача, юриста или психолога.</p>
+    <p>Небосвод, 2026</p>
+  </div>
+</footer>
+
+<script>
+// деления на круге
+(function(){
+  var g=document.getElementById('ticks'),ns='http://www.w3.org/2000/svg',s='';
+  for(var i=0;i<12;i++){
+    var a=i*30*Math.PI/180,x1=100+74*Math.sin(a),y1=100-74*Math.cos(a),x2=100+96*Math.sin(a),y2=100-96*Math.cos(a);
+    s+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'"/>';
+  }
+  g.innerHTML=s;
+})();
+
+// звёзды
+(function(){
+  var c=document.getElementById('stars'),ctx=c.getContext('2d'),stars=[],w,h,dpr=Math.min(window.devicePixelRatio||1,2);
+  var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    w=window.innerWidth;h=window.innerHeight;
+    c.width=w*dpr;c.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    var n=Math.round(w*h/5500);stars=[];
+    for(var i=0;i<n;i++)stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.2,p:Math.random()*6.28,s:Math.random()*.02+.005});
+    draw(0);
+  }
+  function draw(t){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i],a=still?.7:.35+.65*Math.abs(Math.sin(s.p+t*s.s*.06));
+      ctx.globalAlpha=a;ctx.fillStyle=i%7===0?'#e8c882':'#ffffff';
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,6.283);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(!still)requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();
+})();
+
+// передаём utm-метки дальше в ссылку на бота (в поле start)
+(function(){
+  try{
+    var p=new URLSearchParams(location.search),src=p.get('utm_source')||p.get('src');
+    if(!src)return;
+    var payload=src.replace(/[^A-Za-z0-9_-]/g,'').slice(0,60);
+    if(!payload)return;
+    document.querySelectorAll('[data-cta]').forEach(function(a){a.href='https://t.me/nebosvod_astro_bot?start='+payload;});
+  }catch(e){}
+})();
+</script>
+<!-- Сюда вставить счётчик Яндекс.Метрики или пиксель VK, чтобы считать клики по кнопке -->
+</body>
+</html>
