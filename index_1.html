@@ -63,6 +63,8 @@ h1{
 .btn:hover{transform:translateY(-2px);box-shadow:0 14px 50px rgba(232,200,130,.42)}
 .btn svg{width:22px;height:22px;flex:none}
 .note{margin-top:18px;font-size:14px;color:var(--muted)}
+.copylink{display:inline-block;margin-top:10px;font-size:13px;color:var(--gold-soft);text-decoration:underline;text-underline-offset:3px;background:none;border:none;cursor:pointer;font-family:inherit;padding:4px}
+.copylink:active{opacity:.7}
 
 /* sections */
 section{padding:72px 0}
@@ -138,7 +140,7 @@ footer p{max-width:620px;margin:0 auto 6px}
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3.3 2.6 10.6c-1.3.5-1.3 1.3-.2 1.6l4.8 1.5 1.8 5.7c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.3-2.2 4.700 3.500c.9.5 1.500.2 1.800-.8L23 4.900c.3-1.300-.5-1.900-1.500-1.600ZM8.400 13.200l10.300-6.500c.5-.3.9-.1.5.2l-8.400 7.600-.3 3.600Z"/></svg>
           Открыть бота в Telegram
         </a>
-        <p class="note">Откроется Telegram. Регистрация не нужна.</p>
+        <p class="note">Откроется Telegram. Регистрация не нужна.<br>Если ничего не произошло, нажми на «⋮» вверху экрана, выбери «Открыть в браузере» и попробуй снова — или <button type="button" class="copylink" data-copy>скопируй ссылку на бота</button></p>
       </div>
     </div>
   </div>
@@ -173,6 +175,7 @@ footer p{max-width:620px;margin:0 auto 6px}
       <h2>Твоя карта уже написана, осталось её прочитать</h2>
       <p>Больше тысячи человек уже открыли своё небо в Небосводе. Первый разбор бесплатный.</p>
       <a class="btn" href="https://t.me/nebosvod_astro_bot" data-cta>Получить свой разбор</a>
+      <p class="note">Если Telegram не открылся, нажми на «⋮» вверху экрана, выбери «Открыть в браузере» и попробуй снова — или <button type="button" class="copylink" data-copy>скопируй ссылку на бота</button></p>
     </div>
   </section>
 </main>
@@ -220,15 +223,29 @@ footer p{max-width:620px;margin:0 auto 6px}
 })();
 
 // передаём utm-метки дальше в ссылку на бота (в поле start)
+var botLink='https://t.me/nebosvod_astro_bot';
 (function(){
   try{
     var p=new URLSearchParams(location.search),src=p.get('utm_source')||p.get('src');
     if(!src)return;
     var payload=src.replace(/[^A-Za-z0-9_-]/g,'').slice(0,60);
     if(!payload)return;
-    document.querySelectorAll('[data-cta]').forEach(function(a){a.href='https://t.me/nebosvod_astro_bot?start='+payload;});
+    botLink='https://t.me/nebosvod_astro_bot?start='+payload;
+    document.querySelectorAll('[data-cta]').forEach(function(a){a.href=botLink;});
   }catch(e){}
 })();
+
+// копирование ссылки на бота — запасной вариант, если переход в приложение заблокирован браузером
+document.querySelectorAll('[data-copy]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var done=function(){btn.textContent='Ссылка скопирована!';setTimeout(function(){btn.textContent='скопируй ссылку на бота';},2500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(botLink).then(done).catch(function(){prompt('Скопируй ссылку вручную:',botLink);});
+    }else{
+      prompt('Скопируй ссылку вручную:',botLink);
+    }
+  });
+});
 </script>
 <!-- Сюда вставить счётчик Яндекс.Метрики или пиксель VK, чтобы считать клики по кнопке -->
 </body>
