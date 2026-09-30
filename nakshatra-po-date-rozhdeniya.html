@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Накшатра по дате рождения: рассчитать онлайн | Небосвод</title>
+<meta name="description" content="Бесплатный калькулятор накшатры по дате, времени и месту рождения. Узнай свою лунную стоянку, паду и планету-управителя в ведической астрологии.">
+<link rel="canonical" href="https://nebosvod-landing.onrender.com/nakshatra-po-date-rozhdeniya.html">
+<meta property="og:title" content="Накшатра по дате рождения: рассчитать онлайн | Небосвод">
+<meta property="og:description" content="Бесплатный калькулятор накшатры по дате, времени и месту рождения. Узнай свою лунную стоянку, паду и планету-управителя в ведической астрологии.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nebosvod-landing.onrender.com/nakshatra-po-date-rozhdeniya.html">
+<meta name="theme-color" content="#0b1026">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nb-site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Как узнать свою накшатру?", "acceptedAnswer": {"@type": "Answer", "text": "Нужна позиция Луны в момент рождения по сидерическому зодиаку. Калькулятор считает её по дате, времени и городу рождения с айянамшей Лахири."}}, {"@type": "Question", "name": "Что делать, если я не знаю время рождения?", "acceptedAnswer": {"@type": "Answer", "text": "Калькулятор посчитает на полдень. Луна проходит одну накшатру примерно за сутки, поэтому, если в твой день она была у границы, результат может оказаться соседней накшатрой."}}, {"@type": "Question", "name": "Что такое пада?", "acceptedAnswer": {"@type": "Answer", "text": "Четверть накшатры, 3°20′. Пада уточняет характер накшатры и связана со слогом, с которого по традиции начинают имя."}}, {"@type": "Question", "name": "Чем накшатра отличается от знака зодиака?", "acceptedAnswer": {"@type": "Answer", "text": "Знак занимает 30° неба, накшатра — 13°20′. Поэтому она описывает человека подробнее, и именно по ней в джйотиш считают периоды жизни и совместимость."}}]}</script>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<header class="wrap top"><a href="/">Небосвод</a><nav><a href="/vedicheskiy-znak-zodiaka.html">Ведический знак</a><a href="/nakshatra-po-date-rozhdeniya.html">Накшатра</a><a href="/sadhe-sati.html">Садхе сати</a></nav></header>
+<main class="wrap">
+<h1>Накшатра по дате рождения: калькулятор</h1>
+<p class="lead">Накшатра — одна из 27 лунных стоянок ведической астрологии. В джйотиш она говорит о человеке точнее знака зодиака. Введи дату, время и город рождения, чтобы узнать свою.</p>
+
+<form class="calc" id="f" onsubmit="return false">
+  <div class="row">
+    <div><label for="date">Дата рождения</label><input type="date" id="date" name="date" min="1920-01-01" max="2030-12-31" required></div>
+    <div><label for="time">Время рождения</label><input type="time" id="time" name="time"><div class="hint">Желательно: Луна за сутки проходит целую накшатру.</div></div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <div><label for="city">Город рождения</label><select id="city" name="city"></select></div>
+    <div class="manual" style="display:none"><label for="offset">Часовой пояс, часы от UTC</label><input type="number" id="offset" name="offset" step="0.5" value="3"></div>
+  </div>
+  <button class="btn" type="submit" id="go">Рассчитать накшатру</button>
+  <div class="err" id="err"></div>
+  <div class="result" id="res"></div>
+</form>
+
+<h2>Что такое накшатра</h2>
+<p>Луна обходит небо примерно за 27 суток. Индийские астрологи разделили её путь на 27 участков, по одному на каждую ночь. Это накшатры, лунные стоянки. Каждая занимает 13°20′ неба и делится на четыре четверти, пады. У каждой накшатры своя звезда-ориентир, божество, символ и планета-управитель.</p>
+<p>Накшатра Луны при рождении — главная характеристика человека в джйотиш. Она описывает эмоциональную природу, привычки, то, как человек чувствует и на что опирается. Знак зодиака шире, 30°, поэтому накшатра говорит о человеке точнее.</p>
+<h2>Что считают по накшатре</h2>
+<p><b>Периоды жизни.</b> От управителя накшатры Луны начинается первая даша в системе Вимшоттари, и от неё отсчитываются все большие периоды жизни.</p>
+<p><b>Совместимость.</b> В Индии пару традиционно проверяют по накшатрам жениха и невесты: по темпераменту (гана), по типу энергии (нади) и другим критериям.</p>
+<p><b>Удачное время.</b> Накшатра, через которую проходит Луна в конкретный день, помогает выбрать время для свадьбы, переезда, начала дела.</p>
+<p><b>Имя.</b> У каждой пады свой слог, с которого по традиции начинают имя ребёнка.</p>
+<h2>Все 27 накшатр</h2>
+<table><tr><th>№</th><th>Накшатра</th><th>Управитель</th><th>Символ</th></tr><tr><td>1</td><td>Ашвини</td><td>Кету</td><td>голова коня</td></tr><tr><td>2</td><td>Бхарани</td><td>Венера</td><td>лоно</td></tr><tr><td>3</td><td>Криттика</td><td>Солнце</td><td>пламя и лезвие</td></tr><tr><td>4</td><td>Рохини</td><td>Луна</td><td>колесница</td></tr><tr><td>5</td><td>Мригашира</td><td>Марс</td><td>голова оленя</td></tr><tr><td>6</td><td>Ардра</td><td>Раху</td><td>слеза</td></tr><tr><td>7</td><td>Пунарвасу</td><td>Юпитер</td><td>колчан стрел</td></tr><tr><td>8</td><td>Пушья</td><td>Сатурн</td><td>цветок</td></tr><tr><td>9</td><td>Ашлеша</td><td>Меркурий</td><td>змея</td></tr><tr><td>10</td><td>Магха</td><td>Кету</td><td>трон</td></tr><tr><td>11</td><td>Пурва Пхалгуни</td><td>Венера</td><td>передние ножки ложа</td></tr><tr><td>12</td><td>Уттара Пхалгуни</td><td>Солнце</td><td>задние ножки ложа</td></tr><tr><td>13</td><td>Хаста</td><td>Луна</td><td>ладонь</td></tr><tr><td>14</td><td>Читра</td><td>Марс</td><td>сверкающая жемчужина</td></tr><tr><td>15</td><td>Свати</td><td>Раху</td><td>росток на ветру</td></tr><tr><td>16</td><td>Вишакха</td><td>Юпитер</td><td>триумфальная арка</td></tr><tr><td>17</td><td>Анурадха</td><td>Сатурн</td><td>лотос</td></tr><tr><td>18</td><td>Джйештха</td><td>Меркурий</td><td>амулет</td></tr><tr><td>19</td><td>Мула</td><td>Кету</td><td>корни</td></tr><tr><td>20</td><td>Пурва Ашадха</td><td>Венера</td><td>веер</td></tr><tr><td>21</td><td>Уттара Ашадха</td><td>Солнце</td><td>бивень слона</td></tr><tr><td>22</td><td>Шравана</td><td>Луна</td><td>ухо</td></tr><tr><td>23</td><td>Дхаништха</td><td>Марс</td><td>барабан</td></tr><tr><td>24</td><td>Шатабхиша</td><td>Раху</td><td>пустой круг</td></tr><tr><td>25</td><td>Пурва Бхадрапада</td><td>Юпитер</td><td>меч</td></tr><tr><td>26</td><td>Уттара Бхадрапада</td><td>Сатурн</td><td>змей глубин</td></tr><tr><td>27</td><td>Ревати</td><td>Меркурий</td><td>рыба</td></tr></table>
+
+<h2>Частые вопросы</h2>
+<div class="faq"><details><summary>Как узнать свою накшатру?</summary><p>Нужна позиция Луны в момент рождения по сидерическому зодиаку. Калькулятор считает её по дате, времени и городу рождения с айянамшей Лахири.</p></details><details><summary>Что делать, если я не знаю время рождения?</summary><p>Калькулятор посчитает на полдень. Луна проходит одну накшатру примерно за сутки, поэтому, если в твой день она была у границы, результат может оказаться соседней накшатрой.</p></details><details><summary>Что такое пада?</summary><p>Четверть накшатры, 3°20′. Пада уточняет характер накшатры и связана со слогом, с которого по традиции начинают имя.</p></details><details><summary>Чем накшатра отличается от знака зодиака?</summary><p>Знак занимает 30° неба, накшатра — 13°20′. Поэтому она описывает человека подробнее, и именно по ней в джйотиш считают периоды жизни и совместимость.</p></details></div>
+<h2>Другие калькуляторы</h2>
+<div class="links"><a href="/vedicheskiy-znak-zodiaka.html"><b>Ведический знак зодиака</b><span>Твой знак по индийской астрологии</span></a><a href="/sadhe-sati.html"><b>Садхе сати</b><span>Идёт ли у тебя период Сатурна</span></a></div>
+<div class="cta" style="margin-top:28px"><p>Полный разбор карты по дате, времени и месту рождения: западная астрология, джйотиш и нумерология в одном месте. Первый разбор бесплатно.</p>
+<a class="btn" data-bot="site_naksh" href="https://t.me/nebosvod_astro_bot">Открыть бота в Telegram</a>
+<p class="hint">Если Telegram не открылся, <button type="button" class="copylink" data-copy="site_naksh">скопируй ссылку на бота</button></p></div>
+</main>
+<footer><div class="wrap"><p>Расчёты: эфемериды Astronomy Engine, айянамша Лахири. Астрологические разборы носят развлекательный и рекомендательный характер.</p><p><a href="/" style="color:var(--gold-soft)">Небосвод</a>, 2026</p></div></footer>
+<script src="/astronomy.min.js"></script>
+<script src="/nb-cities.js"></script>
+<script src="/nb-calc.js"></script>
+<script src="/nb-page.js"></script>
+<script>
+
+document.getElementById('go').addEventListener('click', function () {
+  var res = document.getElementById('res'), err = document.getElementById('err'); err.textContent = '';
+  var b = NB.readBirth(document.getElementById('f'));
+  if (b.error) { err.textContent = b.error; res.classList.remove('on'); return; }
+  var t = b.utc, mS = NB.sid(NB.moonTrop(t), t), n = NB.nakshatra(mS), mv = Math.floor(mS / 30);
+  var html = '<div class="muted">Луна при твоём рождении стояла в накшатре</div><div class="big">' + n.name + '</div>';
+  html += '<span class="pill">' + n.pada + '-я пада</span><span class="pill">Управитель: ' + n.lord + '</span><span class="pill">Символ: ' + n.symbol + '</span><span class="pill">Ведическая Луна в ' + NB.SIGNS_PREP[mv] + '</span>';
+  html += '<p style="margin-top:12px">Ключевые темы: ' + n.key + '.</p>';
+  if (!b.timeKnown) {
+    var span = 360 / 27, left = n.pos, right = span - n.pos;
+    html += '<p class="muted">Время рождения не указано, поэтому расчёт сделан на полдень. Луна проходит накшатру примерно за сутки' + (Math.min(left, right) < 6.6 ? ', и в этот день она была близко к границе: с точным временем накшатра может оказаться соседней.' : '. Точное время уточнит результат.') + '</p>';
+  }
+  html += '<div class="cta"><p>Полное описание твоей накшатры и дашу, большой период жизни, в котором ты сейчас, — в бесплатном разборе в боте Небосвод.</p><a class="btn" href="' + NB_botLink('site_naksh') + '">Узнать больше в Telegram</a></div>';
+  res.innerHTML = html; res.classList.add('on');
+});
+
+</script>
+</body>
+</html>

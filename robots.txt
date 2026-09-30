@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nebosvod-landing.onrender.com/sitemap.xml

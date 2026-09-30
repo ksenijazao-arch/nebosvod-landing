@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Садхе сати: калькулятор онлайн, идёт ли у меня период Сатурна | Небосвод</title>
+<meta name="description" content="Проверь, идёт ли у тебя садхе сати — 7,5-летний период Сатурна в ведической астрологии. Бесплатный расчёт по дате рождения: фаза, начало и окончание.">
+<link rel="canonical" href="https://nebosvod-landing.onrender.com/sadhe-sati.html">
+<meta property="og:title" content="Садхе сати: калькулятор онлайн, идёт ли у меня период Сатурна | Небосвод">
+<meta property="og:description" content="Проверь, идёт ли у тебя садхе сати — 7,5-летний период Сатурна в ведической астрологии. Бесплатный расчёт по дате рождения: фаза, начало и окончание.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nebosvod-landing.onrender.com/sadhe-sati.html">
+<meta name="theme-color" content="#0b1026">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nb-site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Как узнать, идёт ли у меня садхе сати?", "acceptedAnswer": {"@type": "Answer", "text": "Нужно знать свою Луну по ведическому (сидерическому) зодиаку и знак, в котором сейчас Сатурн. Если Сатурн в знаке Луны или в соседнем с ней, садхе сати идёт. Калькулятор считает это автоматически."}}, {"@type": "Question", "name": "У кого садхе сати в 2026 году?", "acceptedAnswer": {"@type": "Answer", "text": "С 30 марта 2025 по 3 июня 2027 года Сатурн в ведических Рыбах, поэтому садхе сати идёт у людей с ведической Луной в Водолее, Рыбах и Овне."}}, {"@type": "Question", "name": "Садхе сати — это всегда плохо?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Это время серьёзных уроков и взросления. Для одних оно тяжёлое, для других приносит карьеру и зрелость. Многое зависит от положения Сатурна в личной карте."}}, {"@type": "Question", "name": "Почему мой знак Луны отличается от западного гороскопа?", "acceptedAnswer": {"@type": "Answer", "text": "Джйотиш использует сидерический зодиак, сдвинутый относительно западного почти на 24°. Поэтому Луна часто оказывается в предыдущем знаке."}}]}</script>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<header class="wrap top"><a href="/">Небосвод</a><nav><a href="/vedicheskiy-znak-zodiaka.html">Ведический знак</a><a href="/nakshatra-po-date-rozhdeniya.html">Накшатра</a><a href="/sadhe-sati.html">Садхе сати</a></nav></header>
+<main class="wrap">
+<h1>Садхе сати: калькулятор по дате рождения</h1>
+<p class="lead">Садхе сати — 7,5 года, когда Сатурн проходит над твоей Луной. Самый обсуждаемый период в джйотиш. Введи дату, время и город рождения: калькулятор найдёт твою ведическую Луну и покажет, идёт ли садхе сати сейчас и когда он начнётся или закончится.</p>
+
+<form class="calc" id="f" onsubmit="return false">
+  <div class="row">
+    <div><label for="date">Дата рождения</label><input type="date" id="date" name="date" min="1920-01-01" max="2030-12-31" required></div>
+    <div><label for="time">Время рождения</label><input type="time" id="time" name="time"><div class="hint">Желательно: Луна меняет знак каждые 2,5 дня.</div></div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <div><label for="city">Город рождения</label><select id="city" name="city"></select></div>
+    <div class="manual" style="display:none"><label for="offset">Часовой пояс, часы от UTC</label><input type="number" id="offset" name="offset" step="0.5" value="3"></div>
+  </div>
+  <button class="btn" type="submit" id="go">Проверить садхе сати</button>
+  <div class="err" id="err"></div>
+  <div class="result" id="res"></div>
+</form>
+
+<h2>Что такое садхе сати</h2>
+<p>Садхе сати — «семь с половиной» на хинди. Так в джйотиш называют период, когда транзитный Сатурн проходит через знак перед ведической Луной, через сам знак Луны и через знак после неё. Сатурн идёт по каждому знаку около 2,5 лет, поэтому весь период длится примерно 7,5 года и повторяется раз в 29–30 лет.</p>
+<p>У садхе сати три фазы. Первая, восходящая: Сатурн в 12-м знаке от Луны, обычно время расставаний со старым и роста расходов. Вторая, пиковая: Сатурн над самой Луной, самая ощутимая по эмоциям и нагрузке. Третья, завершающая: Сатурн во 2-м знаке от Луны, время собрать плоды и закрепить результат.</p>
+<h2>У кого садхе сати сейчас</h2>
+<p>С 30 марта 2025 года по 3 июня 2027 года Сатурн идёт по ведическим Рыбам. Значит, сейчас садхе сати у тех, чья ведическая Луна в Водолее (завершающая фаза), в Рыбах (пик) или в Овне (начало). Важно: речь о Луне по сидерическому зодиаку, а не о знаке, который ты знаешь по дню рождения.</p>
+<h2>Как прожить этот период</h2>
+<p>Сатурн в джйотиш — учитель, а не наказание. Он убирает то, что держалось на иллюзиях, и укрепляет то, что построено честно. В садхе сати хорошо работают дисциплина, режим, долгие проекты, забота о здоровье и о старших. Хуже всего — пытаться идти в обход и срезать углы.</p>
+
+<h2>Частые вопросы</h2>
+<div class="faq"><details><summary>Как узнать, идёт ли у меня садхе сати?</summary><p>Нужно знать свою Луну по ведическому (сидерическому) зодиаку и знак, в котором сейчас Сатурн. Если Сатурн в знаке Луны или в соседнем с ней, садхе сати идёт. Калькулятор считает это автоматически.</p></details><details><summary>У кого садхе сати в 2026 году?</summary><p>С 30 марта 2025 по 3 июня 2027 года Сатурн в ведических Рыбах, поэтому садхе сати идёт у людей с ведической Луной в Водолее, Рыбах и Овне.</p></details><details><summary>Садхе сати — это всегда плохо?</summary><p>Нет. Это время серьёзных уроков и взросления. Для одних оно тяжёлое, для других приносит карьеру и зрелость. Многое зависит от положения Сатурна в личной карте.</p></details><details><summary>Почему мой знак Луны отличается от западного гороскопа?</summary><p>Джйотиш использует сидерический зодиак, сдвинутый относительно западного почти на 24°. Поэтому Луна часто оказывается в предыдущем знаке.</p></details></div>
+<h2>Другие калькуляторы</h2>
+<div class="links"><a href="/vedicheskiy-znak-zodiaka.html"><b>Ведический знак зодиака</b><span>Твой знак по индийской астрологии</span></a><a href="/nakshatra-po-date-rozhdeniya.html"><b>Накшатра по дате рождения</b><span>Одна из 27 лунных стоянок</span></a></div>
+<div class="cta" style="margin-top:28px"><p>Полный разбор карты по дате, времени и месту рождения: западная астрология, джйотиш и нумерология в одном месте. Первый разбор бесплатно.</p>
+<a class="btn" data-bot="site_sadhe" href="https://t.me/nebosvod_astro_bot">Открыть бота в Telegram</a>
+<p class="hint">Если Telegram не открылся, <button type="button" class="copylink" data-copy="site_sadhe">скопируй ссылку на бота</button></p></div>
+</main>
+<footer><div class="wrap"><p>Расчёты: эфемериды Astronomy Engine, айянамша Лахири. Астрологические разборы носят развлекательный и рекомендательный характер.</p><p><a href="/" style="color:var(--gold-soft)">Небосвод</a>, 2026</p></div></footer>
+<script src="/astronomy.min.js"></script>
+<script src="/nb-cities.js"></script>
+<script src="/nb-calc.js"></script>
+<script src="/nb-page.js"></script>
+<script>
+
+document.getElementById('go').addEventListener('click', function () {
+  var res = document.getElementById('res'), err = document.getElementById('err'); err.textContent = '';
+  var b = NB.readBirth(document.getElementById('f'));
+  if (b.error) { err.textContent = b.error; res.classList.remove('on'); return; }
+  var t = b.utc, mS = NB.sid(NB.moonTrop(t), t), moon = Math.floor(mS / 30);
+  var now = new Date(), sat = NB.saturnSign(now);
+  var rel = ((sat - moon) % 12 + 12) % 12;
+  var phases = { 11: ['идёт', 'первая, восходящая фаза: Сатурн в знаке перед твоей Луной'], 0: ['идёт', 'пиковая фаза: Сатурн прямо над твоей Луной'], 1: ['идёт', 'завершающая фаза: Сатурн в знаке после твоей Луны'] };
+  var html = '<span class="pill">Ведическая Луна в ' + NB.SIGNS_PREP[moon] + '</span><span class="pill">Сатурн сейчас в ' + NB.SIGNS_PREP[sat] + '</span>';
+  var ch = NB.saturnChanges(now, 32);
+  if (phases[rel]) {
+    html += '<div class="big">Садхе сати идёт</div><p>Сейчас ' + phases[rel][1] + '.</p>';
+    var endSign = (moon + 2) % 12, inside = (moon + 1) % 12, beyond = (moon + 3) % 12, endAt = null;
+    for (var i = 0; i < ch.length; i++) {
+      if (ch[i].to === endSign && ch[i].from === inside) endAt = ch[i].date;
+      else if (ch[i].to === inside && endAt) endAt = null;
+      if (ch[i].to === beyond) break;
+    }
+    if (endAt) html += '<p>Период завершится, когда Сатурн окончательно перейдёт в ведический знак ' + NB.SIGNS[endSign] + ': ориентировочно ' + NB.fmtDate(endAt) + '.</p>';
+  } else {
+    var start = (moon + 11) % 12, when = null;
+    for (var k = 0; k < ch.length; k++) if (ch[k].to === start) { when = ch[k].date; break; }
+    html += '<div class="big">Садхе сати сейчас нет</div>';
+    if (when) html += '<p>Следующий период начнётся, когда Сатурн войдёт в ведический знак ' + NB.SIGNS[start] + ': ориентировочно ' + NB.fmtDate(when) + '.</p>';
+  }
+  if (!b.timeKnown) html += '<p class="muted">Время рождения не указано, расчёт сделан на полдень. Луна меняет знак каждые 2,5 дня, и если в твой день она переходила из знака в знак, результат может отличаться.</p>';
+  html += '<div class="cta"><p>Свою ведическую Луну, накшатру и дашу, большой период жизни, в котором ты сейчас, покажет бесплатный разбор в боте Небосвод.</p><a class="btn" href="' + NB_botLink('site_sadhe') + '">Получить разбор в Telegram</a></div>';
+  res.innerHTML = html; res.classList.add('on');
+});
+
+</script>
+</body>
+</html>

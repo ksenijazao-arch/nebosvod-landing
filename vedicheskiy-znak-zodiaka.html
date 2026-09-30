@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ведический знак зодиака по дате рождения: калькулятор | Небосвод</title>
+<meta name="description" content="Узнай свой знак зодиака в ведической (индийской) астрологии по дате рождения. Бесплатный калькулятор, сидерический зодиак, айянамша Лахири, таблица дат.">
+<link rel="canonical" href="https://nebosvod-landing.onrender.com/vedicheskiy-znak-zodiaka.html">
+<meta property="og:title" content="Ведический знак зодиака по дате рождения: калькулятор | Небосвод">
+<meta property="og:description" content="Узнай свой знак зодиака в ведической (индийской) астрологии по дате рождения. Бесплатный калькулятор, сидерический зодиак, айянамша Лахири, таблица дат.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nebosvod-landing.onrender.com/vedicheskiy-znak-zodiaka.html">
+<meta name="theme-color" content="#0b1026">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nb-site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Почему мой знак в джйотиш другой?", "acceptedAnswer": {"@type": "Answer", "text": "Ведический зодиак привязан к звёздам, западный — к весеннему равноденствию. Сейчас между ними около 24°, поэтому знаки сдвинуты примерно на месяц."}}, {"@type": "Question", "name": "Какую айянамшу использует калькулятор?", "acceptedAnswer": {"@type": "Answer", "text": "Айянамшу Лахири (Читрапакша). Это официальный стандарт индийского календаря и самая распространённая система в джйотиш."}}, {"@type": "Question", "name": "Нужно ли знать время рождения?", "acceptedAnswer": {"@type": "Answer", "text": "Для знака Солнца достаточно даты. Время нужно, если ты родилась на границе знаков или хочешь узнать ведическую Луну: она меняет знак каждые 2,5 дня."}}, {"@type": "Question", "name": "Какой знак мне читать в гороскопах?", "acceptedAnswer": {"@type": "Answer", "text": "Если гороскоп составлен по западной астрологии, читай свой привычный знак. Если по джйотиш, то ведический. Лучше всего работает личный разбор по полной карте."}}]}</script>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<header class="wrap top"><a href="/">Небосвод</a><nav><a href="/vedicheskiy-znak-zodiaka.html">Ведический знак</a><a href="/nakshatra-po-date-rozhdeniya.html">Накшатра</a><a href="/sadhe-sati.html">Садхе сати</a></nav></header>
+<main class="wrap">
+<h1>Ведический знак зодиака: калькулятор по дате рождения</h1>
+<p class="lead">В индийской астрологии знаки считают от звёзд, а не от сезонов, поэтому твой знак здесь, скорее всего, другой. Введи дату рождения, чтобы узнать его. Время и город нужны, только если хочешь узнать ещё и ведическую Луну.</p>
+
+<form class="calc" id="f" onsubmit="return false">
+  <div class="row">
+    <div><label for="date">Дата рождения</label><input type="date" id="date" name="date" min="1920-01-01" max="2030-12-31" required></div>
+    <div><label for="time">Время рождения</label><input type="time" id="time" name="time"><div class="hint">Необязательно. Если знаешь, покажем и ведическую Луну.</div></div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <div><label for="city">Город рождения</label><select id="city" name="city"></select></div>
+    <div class="manual" style="display:none"><label for="offset">Часовой пояс, часы от UTC</label><input type="number" id="offset" name="offset" step="0.5" value="3"></div>
+  </div>
+  <button class="btn" type="submit" id="go">Узнать ведический знак</button>
+  <div class="err" id="err"></div>
+  <div class="result" id="res"></div>
+</form>
+
+<h2>Почему ведический знак отличается от привычного</h2>
+<p>Западная астрология отсчитывает знаки от точки весеннего равноденствия. Это тропический зодиак, зодиак сезонов: 0° Овна в нём всегда приходится на 20–21 марта.</p>
+<p>Джйотиш, индийская астрология, отсчитывает знаки от неподвижных звёзд. Это сидерический зодиак. Из-за медленного покачивания земной оси точка равноденствия смещается относительно звёзд примерно на градус за 72 года. Сейчас два зодиака расходятся почти на 24°, поэтому у большинства людей ведический знак Солнца на один раньше привычного: Весы часто оказываются Девой, Скорпион становится Весами.</p>
+<h2>Даты знаков в ведическом зодиаке</h2>
+<p>Ориентировочные даты входа Солнца в знаки по айянамше Лахири. Граница сдвигается на день в зависимости от года рождения, поэтому, если ты родилась рядом с границей, лучше воспользоваться калькулятором выше.</p>
+<table><tr><th></th><th>Знак</th><th>Солнце в ведическом зодиаке</th></tr><tr><td>♈︎</td><td>Овен</td><td>14 апреля – 14 мая</td></tr><tr><td>♉︎</td><td>Телец</td><td>15 мая – 14 июня</td></tr><tr><td>♊︎</td><td>Близнецы</td><td>15 июня – 16 июля</td></tr><tr><td>♋︎</td><td>Рак</td><td>17 июля – 16 августа</td></tr><tr><td>♌︎</td><td>Лев</td><td>17 августа – 16 сентября</td></tr><tr><td>♍︎</td><td>Дева</td><td>17 сентября – 16 октября</td></tr><tr><td>♎︎</td><td>Весы</td><td>17 октября – 15 ноября</td></tr><tr><td>♏︎</td><td>Скорпион</td><td>16 ноября – 15 декабря</td></tr><tr><td>♐︎</td><td>Стрелец</td><td>16 декабря – 13 января</td></tr><tr><td>♑︎</td><td>Козерог</td><td>14 января – 12 февраля</td></tr><tr><td>♒︎</td><td>Водолей</td><td>13 февраля – 14 марта</td></tr><tr><td>♓︎</td><td>Рыбы</td><td>15 марта – 13 апреля</td></tr></table>
+<h2>Какой знак «правильный»</h2>
+<p>Оба. Они просто отвечают на разные вопросы. Западная карта хорошо описывает характер, мотивы и психологию. Джйотиш сильнее в прогнозах: периоды жизни, кармические задачи, выбор времени для важных шагов. Индийский астролог к тому же смотрит в первую очередь на Луну и её накшатру, а не на Солнце.</p>
+
+<h2>Частые вопросы</h2>
+<div class="faq"><details><summary>Почему мой знак в джйотиш другой?</summary><p>Ведический зодиак привязан к звёздам, западный — к весеннему равноденствию. Сейчас между ними около 24°, поэтому знаки сдвинуты примерно на месяц.</p></details><details><summary>Какую айянамшу использует калькулятор?</summary><p>Айянамшу Лахири (Читрапакша). Это официальный стандарт индийского календаря и самая распространённая система в джйотиш.</p></details><details><summary>Нужно ли знать время рождения?</summary><p>Для знака Солнца достаточно даты. Время нужно, если ты родилась на границе знаков или хочешь узнать ведическую Луну: она меняет знак каждые 2,5 дня.</p></details><details><summary>Какой знак мне читать в гороскопах?</summary><p>Если гороскоп составлен по западной астрологии, читай свой привычный знак. Если по джйотиш, то ведический. Лучше всего работает личный разбор по полной карте.</p></details></div>
+<h2>Другие калькуляторы</h2>
+<div class="links"><a href="/nakshatra-po-date-rozhdeniya.html"><b>Накшатра по дате рождения</b><span>Одна из 27 лунных стоянок</span></a><a href="/sadhe-sati.html"><b>Садхе сати</b><span>Идёт ли у тебя период Сатурна</span></a></div>
+<div class="cta" style="margin-top:28px"><p>Полный разбор карты по дате, времени и месту рождения: западная астрология, джйотиш и нумерология в одном месте. Первый разбор бесплатно.</p>
+<a class="btn" data-bot="site_vedic" href="https://t.me/nebosvod_astro_bot">Открыть бота в Telegram</a>
+<p class="hint">Если Telegram не открылся, <button type="button" class="copylink" data-copy="site_vedic">скопируй ссылку на бота</button></p></div>
+</main>
+<footer><div class="wrap"><p>Расчёты: эфемериды Astronomy Engine, айянамша Лахири. Астрологические разборы носят развлекательный и рекомендательный характер.</p><p><a href="/" style="color:var(--gold-soft)">Небосвод</a>, 2026</p></div></footer>
+<script src="/astronomy.min.js"></script>
+<script src="/nb-cities.js"></script>
+<script src="/nb-calc.js"></script>
+<script src="/nb-page.js"></script>
+<script>
+
+document.getElementById('go').addEventListener('click', function () {
+  var res = document.getElementById('res'), err = document.getElementById('err'); err.textContent = '';
+  var b = NB.readBirth(document.getElementById('f'));
+  if (b.error) { err.textContent = b.error; res.classList.remove('on'); return; }
+  var t = b.utc, sT = NB.norm(NB.sunTrop(t)), sS = NB.sid(sT, t);
+  var w = Math.floor(sT / 30), v = Math.floor(sS / 30), edge = Math.min(sS % 30, 30 - sS % 30) < 1;
+  var html = '<div class="muted">По ведическому зодиаку твоё Солнце в знаке</div><div class="big">' + NB.GLYPHS[v] + '︎ ' + NB.SIGNS[v] + '</div>';
+  html += '<span class="pill">Западный знак: ' + NB.SIGNS[w] + '</span><span class="pill">Айянамша: ' + NB.ayanamsa(t).toFixed(2) + '°</span>';
+  if (w !== v) html += '<p style="margin-top:12px">Твой западный знак — ' + NB.SIGNS[w] + ', а в джйотиш ты ' + NB.SIGNS[v] + '. Так бывает у большинства: два зодиака сейчас расходятся почти на 24°.</p>';
+  else html += '<p style="margin-top:12px">Твой знак совпадает в обеих системах, так бывает примерно у каждого пятого. Солнце при твоём рождении стояло в самом конце знака по западному зодиаку.</p>';
+  if (edge) html += '<p class="muted">Солнце стояло почти на границе знаков. Если не указано точное время, результат может сдвинуться на соседний знак.</p>';
+  if (b.timeKnown) {
+    var mS = NB.sid(NB.moonTrop(t), t), mv = Math.floor(mS / 30);
+    html += '<p>А твоя ведическая Луна в <b>' + NB.SIGNS_PREP[mv] + '</b>. В джйотиш именно Луна важнее Солнца.</p>';
+  }
+  html += '<div class="cta"><p>Ведическую Луну, накшатру и большой период жизни, в котором ты сейчас, покажет бесплатный разбор в боте Небосвод.</p><a class="btn" href="' + NB_botLink('site_vedic') + '">Получить разбор в Telegram</a></div>';
+  res.innerHTML = html; res.classList.add('on');
+});
+
+</script>
+</body>
+</html>
