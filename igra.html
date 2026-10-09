@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Мой небосвод — игра, которая успокаивает | Небосвод</title>
+<meta name="description" content="Когда тревожно, не спится или мысли ходят по кругу: поймай падающие звёзды, собери созвездие своего знака и узнай, что в нём о тебе записано. Бесплатно, прямо в браузере.">
+<link rel="canonical" href="https://nebosvod-landing.onrender.com/igra.html">
+<meta property="og:title" content="Мой небосвод — игра, которая успокаивает">
+<meta property="og:description" content="Лови падающие звёзды, и шум в голове понемногу стихнет. Небо меняется по настоящим ретроградам, лунам и затмениям.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nebosvod-landing.onrender.com/igra.html">
+<meta name="theme-color" content="#0b1026">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-sized night sky, three screens (вход → игра → итог) stacked in the same frame */
+:root{
+  --night:#0b1026; --deep:#151b3d; --veil:#1d2450;
+  --gold:#e8c88a; --gold-dim:rgba(232,200,138,.18);
+  --ink:#efe8d8; --muted:#9298bd; --comet:#ff8a72;
+  --display:"Philosopher", "Georgia", serif;
+  --body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--night);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app{position:relative;height:100%;max-width:480px;margin:0 auto;background:radial-gradient(120% 70% at 50% 0%, var(--veil) 0%, var(--night) 60%)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;padding:24px 20px 28px}
+.screen[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+button{font:inherit;cursor:pointer;border:0}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;padding:16px 18px;border-radius:14px;font-weight:700;font-size:16px;letter-spacing:.01em}
+.btn-gold{background:var(--gold);color:var(--night)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid rgba(232,200,138,.35)}
+.btn-quiet{background:none;color:var(--muted);font-weight:500;font-size:14px;padding:10px}
+
+/* ---------- старт ---------- */
+#start{gap:22px}
+.brand{display:flex;flex-direction:column;gap:10px;padding-top:12px}
+.brand h1{font-size:44px;line-height:1;color:var(--gold)}
+.brand p{margin:0;color:var(--ink);opacity:.85;line-height:1.5;font-size:15px;max-width:34ch}
+.brand .calm-note{font-size:14px;color:var(--muted);opacity:1}
+.res-calm{margin:0;font-size:15px;line-height:1.55;font-family:var(--display);font-style:italic;color:var(--ink);opacity:.9;max-width:32ch}
+.sky-today{border:1px solid var(--gold-dim);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px;background:rgba(11,16,38,.55)}
+.sky-today .mode-name{font-family:var(--display);font-size:24px;color:var(--gold)}
+.sky-today .mode-desc{font-size:14px;line-height:1.45;color:var(--ink);opacity:.85}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{font-size:13px;color:var(--muted)}
+.field input{background:var(--deep);color:var(--ink);border:1px solid var(--gold-dim);border-radius:12px;padding:14px;font:inherit;font-size:16px}
+.sign-line{font-size:14px;color:var(--muted)} .sign-line b{color:var(--gold);font-weight:600}
+.preview{display:flex;align-items:center;gap:14px}
+.preview svg{width:96px;height:96px;flex:none}
+.preview .pv-text{font-size:13px;color:var(--muted);line-height:1.5}
+.preview .pv-text b{color:var(--ink);font-weight:600}
+.proto{margin-top:auto;display:flex;flex-direction:column;gap:10px;border-top:1px dashed rgba(146,152,189,.3);padding-top:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--deep);color:var(--muted);border:1px solid transparent;border-radius:999px;padding:8px 12px;font-size:13px}
+.chip[aria-pressed="true"]{color:var(--night);background:var(--gold)}
+
+/* ---------- игра ---------- */
+#game{padding:0;overflow:hidden}
+#sky{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.hud{position:absolute;left:0;right:0;top:0;padding:14px 18px 0;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.hud-row{display:flex;justify-content:space-between;align-items:baseline}
+.score{font-family:var(--display);font-size:34px;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.score small{font-family:var(--body);font-size:12px;color:var(--muted);margin-left:6px;letter-spacing:.06em}
+.combo{font-size:13px;color:var(--ink);opacity:0;transition:opacity .2s}
+.combo.on{opacity:1}
+.combo b{color:var(--gold)}
+.timebar{height:3px;background:rgba(232,200,138,.15);border-radius:3px;overflow:hidden}
+.timebar i{display:block;height:100%;background:var(--gold);transform-origin:left;width:100%}
+.mode-tag{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:24px;background:rgba(8,11,28,.72)}
+.intro h2{font-size:34px;color:var(--gold)}
+.intro p{margin:0;max-width:30ch;line-height:1.5;font-size:15px}
+.intro .rules{display:flex;gap:18px;font-size:13px;color:var(--muted);margin-top:6px;flex-wrap:wrap;justify-content:center}
+.intro .rules span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tap-hint{margin-top:18px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* ---------- итог ---------- */
+#result{gap:20px}
+.res-head{display:flex;flex-direction:column;gap:6px;padding-top:8px}
+.res-big{font-family:var(--display);font-size:64px;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+.res-sub{font-size:15px;color:var(--ink);opacity:.85}
+.const{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0}
+.const svg{width:min(260px,80%);height:auto;max-width:100%}
+.const .cap{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.progress{width:100%;height:4px;background:var(--gold-dim);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--gold);transition:width 1.2s ease}
+.frags{display:flex;flex-direction:column;gap:10px}
+.frag{border-radius:14px;padding:14px 16px;background:rgba(21,27,61,.7);border:1px solid transparent;display:flex;flex-direction:column;gap:6px}
+.frag h3{font-size:18px;color:var(--gold)}
+.frag p{margin:0;font-size:14px;line-height:1.5}
+.frag.new{border-color:var(--gold);animation:glow 2.4s ease-in-out 2}
+.frag.locked h3{color:var(--muted)}
+.frag.locked p{color:var(--muted);font-size:13px}
+.frag .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+@keyframes glow{50%{box-shadow:0 0 28px rgba(232,200,138,.35)}}
+.tomorrow{border:1px dashed rgba(232,200,138,.4);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.tomorrow .t-mode{font-family:var(--display);font-size:20px;color:var(--gold)}
+.tomorrow p{margin:0;font-size:14px;line-height:1.5}
+.streak{font-size:13px;color:var(--muted)}
+.ctas{display:flex;flex-direction:column;gap:10px}
+.lit-new{animation:lit 1.4s ease forwards}
+@keyframes lit{0%{r:0;opacity:0}60%{r:7}100%{r:4;opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="app">
+
+  <!-- ВХОД -->
+  <section class="screen" id="start" aria-label="Начало">
+    <div class="brand">
+      <span class="eyebrow">Небосвод · игра для тихой головы</span>
+      <h1>Мой небосвод</h1>
+      <p>Когда тревожно, не спится или мысли ходят по кругу, дай рукам простое дело. Лови падающие звёзды: внимание уйдёт в небо, и шум в голове понемногу стихнет.</p>
+      <p class="calm-note">А пока ты играешь, звёзды складываются в твоё созвездие и открывают, что в нём о тебе записано.</p>
+    </div>
+
+    <div class="sky-today" aria-live="polite">
+      <span class="eyebrow" id="skyDate">Небо сегодня</span>
+      <span class="mode-name" id="modeName">Спокойное небо</span>
+      <span class="mode-desc" id="modeDesc"></span>
+    </div>
+
+    <div class="field">
+      <label for="bdate">Твоя дата рождения</label>
+      <input type="date" id="bdate" value="1992-11-07" min="1930-01-01" max="2015-12-31">
+      <span class="sign-line">Твоё созвездие: <b id="signName">Скорпион</b></span>
+    </div>
+
+    <div class="preview">
+      <svg id="pvSvg" viewBox="0 0 100 100" aria-hidden="true"></svg>
+      <div class="pv-text" id="pvText"></div>
+    </div>
+
+    <button class="btn btn-gold" id="playBtn">Выйти под небо</button>
+
+    <div class="proto">
+      <span class="eyebrow">Прототип: попробуй другое небо</span>
+      <div class="chips" id="chips">
+        <button class="chip" data-mode="auto" aria-pressed="true">Как сегодня</button>
+        <button class="chip" data-mode="retro" aria-pressed="false">Ретро-Меркурий</button>
+        <button class="chip" data-mode="full" aria-pressed="false">Полнолуние</button>
+        <button class="chip" data-mode="new" aria-pressed="false">Новолуние</button>
+        <button class="chip" data-mode="eclipse" aria-pressed="false">Затмение</button>
+      </div>
+      <button class="btn-quiet" id="resetBtn">Сбросить прогресс</button>
+    </div>
+  </section>
+
+  <!-- ИГРА -->
+  <section class="screen" id="game" aria-label="Игра" hidden>
+    <canvas id="sky"></canvas>
+    <div class="hud">
+      <div class="timebar"><i id="timeFill"></i></div>
+      <div class="hud-row">
+        <div class="score" id="score">0<small>звёзд</small></div>
+        <div class="combo" id="combo">серия <b id="comboN">0</b></div>
+      </div>
+      <div class="mode-tag" id="modeTag"></div>
+    </div>
+    <div class="intro" id="intro">
+      <span class="eyebrow">Сегодня на небе</span>
+      <h2 id="introTitle">Спокойное небо</h2>
+      <p id="introDesc"></p>
+      <div class="rules">
+        <span><i class="dot" style="background:var(--ink)"></i>звезда +1</span>
+        <span><i class="dot" style="background:var(--gold)"></i>золотая +3</span>
+        <span><i class="dot" style="background:var(--comet)"></i>комета −3</span>
+      </div>
+      <div class="tap-hint">Коснись, чтобы начать</div>
+    </div>
+  </section>
+
+  <!-- ИТОГ -->
+  <section class="screen" id="result" aria-label="Итог" hidden>
+    <div class="res-head">
+      <span class="eyebrow" id="resEyebrow">Сегодня ты поймала</span>
+      <div class="res-big" id="resBig">0</div>
+      <div class="res-sub" id="resSub"></div>
+    </div>
+    <p class="res-calm" id="resCalm">Сорок секунд ты была только здесь, с небом. Прислушайся: в голове стало тише? Если мысли ещё шумят, сыграй ещё раз.</p>
+
+    <div class="const">
+      <svg id="resSvg" viewBox="0 0 100 100" aria-hidden="true"></svg>
+      <div class="progress"><i id="resProg" style="width:0"></i></div>
+      <div class="cap" id="resCap"></div>
+    </div>
+
+    <div class="frags" id="frags"></div>
+
+    <div class="tomorrow">
+      <span class="eyebrow">Завтра на небе</span>
+      <span class="t-mode" id="tmMode"></span>
+      <p id="tmDesc"></p>
+      <span class="streak" id="streak"></span>
+    </div>
+
+    <div class="ctas">
+      <a class="btn btn-gold" id="ctaForecast" href="https://t.me/nebosvod_astro_bot?start=game_forecast" target="_blank" rel="noopener">Что ждёт меня завтра</a>
+      <a class="btn btn-ghost" id="ctaFree" href="https://t.me/nebosvod_astro_bot?start=game" target="_blank" rel="noopener">Бесплатный разбор моей карты</a>
+      <button class="btn btn-ghost" id="againBtn">Ещё немного неба</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+/* ================= данные ================= */
+const SIGNS = [
+ {n:"Козерог",g:"Козерога",from:[12,22]},{n:"Водолей",g:"Водолея",from:[1,20]},{n:"Рыбы",g:"Рыб",from:[2,19]},
+ {n:"Овен",g:"Овна",from:[3,21]},{n:"Телец",g:"Тельца",from:[4,20]},{n:"Близнецы",g:"Близнецов",from:[5,21]},
+ {n:"Рак",g:"Рака",from:[6,21]},{n:"Лев",g:"Льва",from:[7,23]},{n:"Дева",g:"Девы",from:[8,23]},
+ {n:"Весы",g:"Весов",from:[9,23]},{n:"Скорпион",g:"Скорпиона",from:[10,23]},{n:"Стрелец",g:"Стрельца",from:[11,22]}
+];
+const SHAPES = {
+ "Овен":{p:[[12,62],[40,46],[64,40],[86,50],[78,68]],e:[[0,1],[1,2],[2,3],[3,4]]},
+ "Телец":{p:[[10,18],[30,38],[45,52],[56,58],[70,46],[90,28],[60,74],[40,84]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[3,6],[6,7]]},
+ "Близнецы":{p:[[22,12],[26,38],[22,64],[16,88],[62,10],[64,36],[68,62],[74,86]],e:[[0,1],[1,2],[2,3],[4,5],[5,6],[6,7],[1,5]]},
+ "Рак":{p:[[50,12],[48,44],[30,60],[22,82],[66,62],[76,84]],e:[[0,1],[1,2],[2,3],[1,4],[4,5]]},
+ "Лев":{p:[[82,22],[70,12],[56,18],[54,32],[66,42],[48,58],[22,62],[16,84],[46,82]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,5]]},
+ "Дева":{p:[[12,30],[30,38],[48,34],[62,46],[82,40],[58,64],[44,84],[80,76]],e:[[0,1],[1,2],[2,3],[3,4],[3,5],[5,6],[5,7]]},
+ "Весы":{p:[[50,14],[24,44],[76,44],[30,80],[72,78]],e:[[0,1],[0,2],[1,2],[1,3],[2,4]]},
+ "Скорпион":{p:[[86,14],[80,28],[72,40],[60,48],[52,58],[44,70],[38,82],[24,88],[12,78],[16,64]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9]]},
+ "Стрелец":{p:[[18,72],[34,56],[50,60],[60,40],[76,28],[70,56],[86,64],[48,82]],e:[[0,1],[1,2],[2,3],[3,4],[2,5],[5,6],[2,7],[3,5]]},
+ "Козерог":{p:[[14,24],[34,40],[60,46],[86,30],[78,56],[54,76],[30,62]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0]]},
+ "Водолей":{p:[[10,30],[28,42],[46,30],[64,42],[84,30],[30,72],[50,80],[72,70]],e:[[0,1],[1,2],[2,3],[3,4],[2,6],[5,6],[6,7]]},
+ "Рыбы":{p:[[10,18],[22,32],[18,48],[30,60],[46,70],[62,76],[80,64],[90,48],[78,38],[68,52]],e:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,6]]}
+};
+const FRAG_TITLES = ["Твоя сила","Твоя тень","Как ты любишь"];
+const FRAGS = {
+ "Овен":["Ты начинаешь там, где другие ещё сомневаются. Твой огонь заразителен: рядом с тобой людям хочется действовать.","Ты сгораешь раньше финиша. Слабость тут ни при чём: тебе становится скучно, когда первая искра погасла.","Тебе нужен человек, которого придётся завоёвывать. Лёгкая победа тебя не греет."],
+ "Телец":["Ты умеешь превращать время в ценность: деньги, вкус, дом, тело. Всё, к чему ты прикасаешься надолго, становится красивее.","Ты держишься за то, что давно тебе мало. Привычное кажется безопасным, даже когда тесно.","Ты любишь руками: накормить, укрыть, остаться. Тебе важно, чтобы это замечали."],
+ "Близнецы":["Твой ум ловит связи, которых другие не видят. Ты можешь продать идею, объяснить сложное, рассмешить в тяжёлый день.","Ты так быстро переключаешься, что иногда сбегаешь от собственных чувств в новый разговор.","Тебя заводят слова. Если с человеком не о чем говорить в два часа ночи, никакая красота не удержит."],
+ "Рак":["Ты чувствуешь людей кожей и создаёшь место, куда хочется возвращаться.","Ты копишь обиды молча, а потом закрываешься так, что до тебя не достучаться.","Тебе нужна уверенность, что тебя не оставят. Когда она есть, ты отдаёшь всё."],
+ "Лев":["Ты светишь, и в этом свете другие начинают верить в себя.","Когда тебя не замечают, ты гаснешь быстрее, чем готова признать.","Тебе нужно восхищение, и в этом нет ничего стыдного. Ты возвращаешь его щедро."],
+ "Дева":["Ты видишь, как сделать лучше, и делаешь. На тебе держится больше, чем кажется со стороны.","Внутренний критик говорит твоим голосом громче, чем любой чужой.","Ты любишь заботой о мелочах. «Я запомнил» для тебя весит больше, чем «я люблю»."],
+ "Весы":["Ты чувствуешь красоту и равновесие там, где другие видят хаос, и умеешь мирить людей.","Ты так боишься конфликта, что иногда предаёшь собственное «нет».","Ты расцветаешь в паре. Главное — не раствориться в ней и не потерять свой голос."],
+ "Скорпион":["Ты видишь людей насквозь и не боишься глубины, от которой другие отводят глаза.","Ты проверяешь на прочность даже тех, кто давно доказал верность.","Тебе нужно всё или ничего. Полутона в любви ранят сильнее, чем честный уход."],
+ "Стрелец":["Ты видишь смысл и заражаешь людей верой в большое.","Ты обещаешь горизонт, а потом теряешь интерес к дороге.","Тебе нужен попутчик. Клетку ты почувствуешь, даже если она золотая."],
+ "Козерог":["Ты строишь надолго. То, что другие бросают через месяц, ты доводишь до вершины.","Ты разрешаешь себе отдых только после результата, а результат всё время отодвигается.","Красивые слова не твой язык, твой язык — надёжность. Тебе нужен тот, кто умеет его читать."],
+ "Водолей":["Ты думаешь на годы вперёд и не боишься быть первой.","Ты держишь дистанцию даже с близкими и называешь это свободой.","Сначала дружба, потом всё остальное. Тебе нужен человек, с которым можно быть странной."],
+ "Рыбы":["Ты чувствуешь невидимое: настроения, смыслы, то, что не сказано вслух.","Ты растворяешься в чужих чувствах и забываешь, где заканчиваешься ты.","Ты любишь как в кино, всем сердцем. Рядом должен быть тот, кто этим не воспользуется."]
+};
+const NEED = 120, THRESH = [40,80,120];
+
+const MODES = {
+ normal:{name:"Спокойное небо",desc:"Обычный ритм. Лови звёзды, кометы не трогай.",tag:"спокойное небо"},
+ retro:{name:"Меркурий ретрограден",desc:"Небо идёт вспять: звёзды поднимаются снизу вверх. Всё как в жизни в эти дни.",tag:"☿ ретро · небо идёт вспять"},
+ full:{name:"Полнолуние",desc:"Звёзд вдвое больше, и они падают быстрее. Эмоции на пределе, успевай.",tag:"○ полнолуние · звёзд вдвое больше"},
+ new:{name:"Новолуние",desc:"Звёзды едва видны, зато каждая стоит двух. День, когда награда за внимание.",tag:"● новолуние · каждая звезда ×2"},
+ eclipse:{name:"Затмение",desc:"Небо будет гаснуть на пару секунд. Запоминай, где звёзды, и лови вслепую.",tag:"◐ затмение · небо гаснет"}
+};
+const RETRO = [["2026-02-26","2026-03-20"],["2026-06-29","2026-07-23"],["2026-10-24","2026-11-13"],["2027-02-09","2027-03-03"],["2027-06-10","2027-07-04"],["2027-10-07","2027-10-28"]];
+const ECLIPSES = ["2026-02-17","2026-03-03","2026-08-12","2026-08-28","2027-02-06","2027-02-20","2027-07-18","2027-08-02","2027-08-17"];
+
+/* ================= расчёты неба ================= */
+const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function moonAge(d){
+  const jd = d.getTime()/86400000 + 2440587.5;
+  const syn = 29.530588853;
+  let a = ((jd - 2451550.1) / syn) % 1; if(a<0) a+=1;
+  return a*syn;
+}
+function skyMode(d){
+  const s = iso(d);
+  if (ECLIPSES.includes(s)) return "eclipse";
+  if (RETRO.some(([a,b]) => s>=a && s<=b)) return "retro";
+  const age = moonAge(new Date(d.getFullYear(),d.getMonth(),d.getDate(),12));
+  if (age>=13.8 && age<=15.8) return "full";
+  if (age<=1.2 || age>=28.3) return "new";
+  return "normal";
+}
+function signOf(dateStr){
+  const [y,m,d] = dateStr.split("-").map(Number);
+  if(!m) return "Скорпион";
+  // знак по границам
+  const tbl=[["Козерог",1,19],["Водолей",2,18],["Рыбы",3,20],["Овен",4,19],["Телец",5,20],["Близнецы",6,20],["Рак",7,22],["Лев",8,22],["Дева",9,22],["Весы",10,22],["Скорпион",11,21],["Стрелец",12,21]];
+  const t = tbl[m-1];
+  if (d<=t[2]) return t[0];
+  return m===12 ? "Козерог" : tbl[m][0];
+}
+const genOf = n => SIGNS.find(s=>s.n===n).g;
+
+/* ================= прогресс (только в этом браузере) ================= */
+const KEY="nebosvod_game_v1";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ return {}; } }
+function save(s){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){} }
+let store = load(); if(!store.prog) store.prog={};
+
+/* ================= элементы ================= */
+const $ = id => document.getElementById(id);
+const scr = {start:$("start"),game:$("game"),result:$("result")};
+function show(k){ for(const n in scr) scr[n].hidden = n!==k; }
+
+let forcedMode = "auto";
+const today = new Date();
+function currentMode(){ return forcedMode==="auto" ? skyMode(today) : forcedMode; }
+
+function drawConst(svg, sign, litCount, prevLit){
+  const sh = SHAPES[sign]; const lit = i => i < litCount;
+  let h = "";
+  sh.e.forEach(([a,b])=>{
+    const on = lit(a)&&lit(b);
+    h += `<line x1="${sh.p[a][0]}" y1="${sh.p[a][1]}" x2="${sh.p[b][0]}" y2="${sh.p[b][1]}" stroke="${on?'#e8c88a':'#9298bd'}" stroke-opacity="${on?0.8:0.22}" stroke-width="${on?0.9:0.6}" ${on?'':'stroke-dasharray="1.5 2"'}/>`;
+  });
+  sh.p.forEach(([x,y],i)=>{
+    if(lit(i)){
+      const isNew = prevLit!==undefined && i>=prevLit;
+      h += `<circle cx="${x}" cy="${y}" r="9" fill="#e8c88a" fill-opacity=".12"/>`;
+      h += `<circle cx="${x}" cy="${y}" r="4" fill="#e8c88a" class="${isNew?'lit-new':''}" style="${isNew?`animation-delay:${0.25*(i-prevLit)+0.4}s;opacity:0`:''}"/>`;
+    } else {
+      h += `<circle cx="${x}" cy="${y}" r="2.2" fill="#9298bd" fill-opacity=".45"/>`;
+    }
+  });
+  svg.innerHTML = h;
+}
+const litFor = (sign,total) => Math.floor(SHAPES[sign].p.length * Math.min(total,NEED)/NEED);
+
+function refreshStart(){
+  const m = MODES[currentMode()];
+  $("skyDate").textContent = "Небо " + (forcedMode==="auto" ? "сегодня, " + today.toLocaleDateString("ru-RU",{day:"numeric",month:"long"}) : "для пробы");
+  $("modeName").textContent = m.name; $("modeDesc").textContent = m.desc;
+  const sign = signOf($("bdate").value);
+  $("signName").textContent = sign;
+  const total = store.prog[sign]||0;
+  drawConst($("pvSvg"), sign, litFor(sign,total));
+  const opened = THRESH.filter(t=>total>=t).length;
+  $("pvText").innerHTML = total
+    ? `Созвездие ${genOf(sign)}: <b>${Math.min(total,NEED)} из ${NEED}</b> звёзд.<br>Открыто ${opened} из 3 тайн о тебе.`
+    : `Созвездие ${genOf(sign)} пока тёмное.<br>Первая тайна о тебе откроется на <b>${THRESH[0]}</b> звёздах.`;
+}
+$("bdate").addEventListener("input", refreshStart);
+$("chips").addEventListener("click", e=>{
+  const b = e.target.closest(".chip"); if(!b) return;
+  forcedMode = b.dataset.mode;
+  [...$("chips").children].forEach(c=>c.setAttribute("aria-pressed", c===b));
+  refreshStart();
+});
+$("resetBtn").addEventListener("click", ()=>{ store={prog:{}}; save(store); refreshStart(); });
+
+/* ================= игра ================= */
+const cv = $("sky"), ctx = cv.getContext("2d");
+let W=0,H=0,dpr=1, bg=null;
+function resize(){
+  dpr = Math.min(window.devicePixelRatio||1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W*dpr; cv.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  bg = Array.from({length:Math.round(W*H/2600)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.1+.2,t:Math.random()*6}));
+}
+window.addEventListener("resize", ()=>{ if(!scr.game.hidden) resize(); });
+
+const DUR = 40;
+let G = null, raf = 0;
+
+function startGame(){
+  const sign = signOf($("bdate").value);
+  const mode = currentMode();
+  G = {sign, mode, score:0, combo:0, best:0, caught:0, objs:[], parts:[], floats:[], t:0, last:0, spawnAcc:0, running:false, shake:0, flash:0, prevTotal: store.prog[sign]||0};
+  show("game"); resize();
+  const m = MODES[mode];
+  $("introTitle").textContent = m.name; $("introDesc").textContent = m.desc;
+  $("modeTag").textContent = m.tag;
+  $("intro").hidden = false;
+  $("score").innerHTML = `0<small>звёзд</small>`;
+  $("timeFill").style.transform = "scaleX(1)";
+  $("combo").classList.remove("on");
+  cancelAnimationFrame(raf); G.last = performance.now(); raf = requestAnimationFrame(loop);
+}
+$("playBtn").addEventListener("click", startGame);
+$("againBtn").addEventListener("click", startGame);
+$("intro").addEventListener("pointerdown", e=>{ e.preventDefault(); $("intro").hidden = true; G.running = true; G.t = 0; });
+
+function spawn(){
+  const p = G.t/DUR, mode=G.mode;
+  const speedBase = (H/700) * 150 * (1+0.55*p) * (mode==="full"?1.35:1);
+  const r = Math.random();
+  let type = "star";
+  if (G.t>2.5 && r<0.2) type="comet"; else if (r>0.92) type="gold";
+  const x = 28 + Math.random()*(W-56);
+  const up = mode==="retro";
+  let sp = speedBase*(0.8+Math.random()*0.5);
+  if (type==="comet") sp*=1.35;
+  const o = {type, x, y: up? H+24 : -24, vx:(Math.random()-.5)*(type==="comet"?90:30), vy: up? -sp : sp, r: type==="gold"?13:type==="comet"?11:10, ph:Math.random()*6};
+  G.objs.push(o);
+}
+
+function burst(x,y,col,n){
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=60+Math.random()*180; G.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.6+Math.random()*.4,col}); }
+}
+function floatText(x,y,txt,col){ G.floats.push({x,y,txt,col,life:1}); }
+
+cv.addEventListener("pointerdown", e=>{
+  if(!G||!G.running) return;
+  e.preventDefault();
+  const rc = cv.getBoundingClientRect(); const x=e.clientX-rc.left, y=e.clientY-rc.top;
+  let best=null, bd=1e9;
+  for(const o of G.objs){ const d=Math.hypot(o.x-x,o.y-y); if(d<o.r+30 && d<bd){bd=d;best=o;} }
+  if(!best) return;
+  G.objs.splice(G.objs.indexOf(best),1);
+  try{ window.__nbTap && window.__nbTap(best.type); }catch(_){}
+  if(best.type==="comet"){
+    G.score=Math.max(0,G.score-3); G.combo=0; G.shake=.15; G.flash=.18;
+    burst(best.x,best.y,"#ff8a72",14); floatText(best.x,best.y,"−3","#ff8a72");
+  } else {
+    G.combo++; G.best=Math.max(G.best,G.combo);
+    let v = best.type==="gold"?3:1;
+    if(G.mode==="new") v*=2;
+    if(G.combo>=8) v*=2;
+    G.score+=v; G.caught++;
+    burst(best.x,best.y,best.type==="gold"?"#e8c88a":"#efe8d8",best.type==="gold"?22:12);
+    floatText(best.x,best.y,"+"+v,best.type==="gold"?"#e8c88a":"#efe8d8");
+  }
+  $("score").innerHTML = `${G.score}<small>звёзд</small>`;
+  $("comboN").textContent = G.combo + (G.combo>=8?" · ×2":"");
+  $("combo").classList.toggle("on", G.combo>=3);
+}, {passive:false});
+
+function eclipseDark(t){
+  if(G.mode!=="eclipse") return 0;
+  const c = (t-4)%7.5; if(t<4) return 0;
+  if(c<0.4) return c/0.4; if(c<2.2) return 1; if(c<2.6) return 1-(c-2.2)/0.4; return 0;
+}
+
+function drawStar(o,t,alpha){
+  const pulse = 1+Math.sin(t*6+o.ph)*.12;
+  const r=o.r*pulse;
+  if(o.type==="comet"){
+    const ang=Math.atan2(o.vy,o.vx);
+    const tl=60; const gx=o.x-Math.cos(ang)*tl, gy=o.y-Math.sin(ang)*tl;
+    const g=ctx.createLinearGradient(o.x,o.y,gx,gy); g.addColorStop(0,`rgba(255,138,114,${.7*alpha})`); g.addColorStop(1,"rgba(255,138,114,0)");
+    ctx.strokeStyle=g; ctx.lineWidth=r*1.1; ctx.lineCap="round"; ctx.beginPath(); ctx.moveTo(o.x,o.y); ctx.lineTo(gx,gy); ctx.stroke();
+    ctx.fillStyle=`rgba(255,190,170,${alpha})`; ctx.beginPath(); ctx.arc(o.x,o.y,r*.55,0,7); ctx.fill();
+    return;
+  }
+  const col = o.type==="gold" ? "232,200,138" : "239,232,216";
+  const g=ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,r*2.4);
+  g.addColorStop(0,`rgba(${col},${.55*alpha})`); g.addColorStop(1,`rgba(${col},0)`);
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(o.x,o.y,r*2.4,0,7); ctx.fill();
+  ctx.fillStyle=`rgba(${col},${alpha})`;
+  ctx.beginPath();
+  for(let i=0;i<8;i++){ const a=i*Math.PI/4 + t*.6, rr = i%2? r*.32 : r; ctx.lineTo(o.x+Math.cos(a)*rr,o.y+Math.sin(a)*rr); }
+  ctx.closePath(); ctx.fill();
+}
+
+function loop(now){
+  const dt = Math.min(0.05,(now-G.last)/1000); G.last=now;
+  const run = G.running;
+  if(run){ G.t+=dt; }
+  const t = G.t;
+
+  // спавн
+  if(run){
+    const rate = (1.25 + 1.2*(t/DUR)) * (G.mode==="full"?2:1);
+    G.spawnAcc += dt*rate;
+    while(G.spawnAcc>=1){ G.spawnAcc-=1; spawn(); }
+  }
+  // движение
+  for(let i=G.objs.length-1;i>=0;i--){
+    const o=G.objs[i]; o.x+=o.vx*dt; o.y+=o.vy*dt;
+    if(o.x<12||o.x>W-12) o.vx*=-1;
+    if(o.y>H+40||o.y<-40){ if(o.type!=="comet" && G.combo>0){ G.combo=0; $("combo").classList.remove("on"); } G.objs.splice(i,1); }
+  }
+  for(let i=G.parts.length-1;i>=0;i--){ const p=G.parts[i]; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vx*=.94; p.vy*=.94; p.life-=dt*1.4; if(p.life<=0) G.parts.splice(i,1); }
+  for(let i=G.floats.length-1;i>=0;i--){ const f=G.floats[i]; f.y-=40*dt; f.life-=dt*1.3; if(f.life<=0) G.floats.splice(i,1); }
+  G.shake=Math.max(0,G.shake-dt); G.flash=Math.max(0,G.flash-dt);
+
+  // отрисовка
+  ctx.save();
+  if(G.shake>0){ ctx.translate((Math.random()-.5)*10*G.shake/.35,(Math.random()-.5)*10*G.shake/.35); }
+  ctx.clearRect(-20,-20,W+40,H+40);
+  const sky=ctx.createLinearGradient(0,0,0,H); sky.addColorStop(0,"#1d2450"); sky.addColorStop(.6,"#0b1026"); sky.addColorStop(1,"#070a1a");
+  ctx.fillStyle=sky; ctx.fillRect(-20,-20,W+40,H+40);
+  const now2=now/1000;
+  for(const s of bg){ ctx.fillStyle=`rgba(239,232,216,${.25+.35*Math.sin(now2*1.3+s.t)**2})`; ctx.fillRect(s.x,s.y,s.r,s.r); }
+  // луна для режимов
+  if(G.mode==="full"||G.mode==="new"){
+    const mx=W-58,my=H*.2;
+    if(G.mode==="full"){ const g=ctx.createRadialGradient(mx,my,10,mx,my,80); g.addColorStop(0,"rgba(239,232,216,.25)"); g.addColorStop(1,"rgba(239,232,216,0)"); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(mx,my,80,0,7); ctx.fill(); ctx.fillStyle="rgba(239,232,216,.85)"; ctx.beginPath(); ctx.arc(mx,my,22,0,7); ctx.fill(); }
+    else { ctx.strokeStyle="rgba(232,200,138,.35)"; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(mx,my,22,0,7); ctx.stroke(); }
+  }
+  const dark = eclipseDark(t);
+  const alpha = (G.mode==="new"?0.38:1) * (1-dark*0.9);
+  for(const o of G.objs) drawStar(o,now2,alpha);
+  for(const p of G.parts){ ctx.globalAlpha=Math.max(0,p.life); ctx.fillStyle=p.col; ctx.fillRect(p.x,p.y,2,2); }
+  ctx.globalAlpha=1;
+  if(dark>0){
+    ctx.fillStyle=`rgba(4,5,14,${.9*dark})`; ctx.fillRect(-20,-20,W+40,H+40);
+    const cx=W/2, cy=H*.42;
+    const g=ctx.createRadialGradient(cx,cy,30,cx,cy,70); g.addColorStop(0,`rgba(232,200,138,${.5*dark})`); g.addColorStop(1,"rgba(232,200,138,0)");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,70,0,7); ctx.fill();
+    ctx.fillStyle=`rgba(4,5,14,${dark})`; ctx.beginPath(); ctx.arc(cx,cy,34,0,7); ctx.fill();
+  }
+  ctx.font="600 18px Manrope, system-ui, sans-serif"; ctx.textAlign="center";
+  for(const f of G.floats){ ctx.globalAlpha=Math.max(0,f.life); ctx.fillStyle=f.col; ctx.fillText(f.txt,f.x,f.y-18); }
+  ctx.globalAlpha=1;
+  if(G.flash>0){ ctx.fillStyle=`rgba(255,138,114,${G.flash*.35})`; ctx.fillRect(-20,-20,W+40,H+40); }
+  ctx.restore();
+
+  $("timeFill").style.transform = `scaleX(${Math.max(0,1-t/DUR)})`;
+  if(run && t>=DUR){ G.running=false; finish(); return; }
+  raf = requestAnimationFrame(loop);
+}
+
+/* ================= итог ================= */
+function finish(){
+  cancelAnimationFrame(raf);
+  const sign=G.sign, prev=G.prevTotal, total=prev+G.score;
+  store.prog[sign]=total;
+  const d=iso(today), y=new Date(today); y.setDate(y.getDate()-1);
+  if(store.lastDay===d){} else if(store.lastDay===iso(y)) store.streak=(store.streak||1)+1; else store.streak=1;
+  store.lastDay=d; save(store);
+
+  $("resEyebrow").textContent = G.mode==="normal" ? "Сегодня ты поймала" : MODES[G.mode].name + " · ты поймала";
+  $("resBig").textContent = G.score;
+  const word = n => { const a=n%10,b=n%100; return (a===1&&b!==11)?"звезду":(a>=2&&a<=4&&(b<10||b>=20))?"звезды":"звёзд"; };
+  $("resEyebrow").textContent += "";
+  $("resSub").textContent = `${word(G.score)} в созвездие ${genOf(sign)}. Лучшая серия: ${G.best}.`;
+
+  const prevLit = litFor(sign,prev), nowLit = litFor(sign,total);
+  drawConst($("resSvg"), sign, nowLit, prevLit);
+  setTimeout(()=>{ $("resProg").style.width = Math.min(100,total/NEED*100)+"%"; }, 200);
+  $("resProg").style.width = Math.min(100,prev/NEED*100)+"%";
+  $("resCap").textContent = total>=NEED ? `Созвездие ${genOf(sign)} собрано целиком` : `${total} из ${NEED} звёзд · созвездие ${genOf(sign)}`;
+
+  const fr = FRAGS[sign];
+  $("frags").innerHTML = THRESH.map((th,i)=>{
+    const open = total>=th, isNew = open && prev<th;
+    if(open) return `<div class="frag ${isNew?'new':''}">${isNew?'<span class="tag">Открыто сегодня</span>':''}<h3>${FRAG_TITLES[i]}</h3><p>${fr[i]}</p></div>`;
+    return `<div class="frag locked"><h3>🔒 ${FRAG_TITLES[i]}</h3><p>Откроется на ${th} звёздах. Ещё ${th-total}.</p></div>`;
+  }).join("");
+
+  const tm = new Date(today); tm.setDate(tm.getDate()+1);
+  const tmode = skyMode(tm);
+  $("tmMode").textContent = MODES[tmode].name;
+  $("tmDesc").textContent = MODES[tmode].desc + " А что это небо значит лично для тебя, расскажет прогноз на завтра.";
+  const s=store.streak||1;
+  $("streak").textContent = `Серия: ${s} ${s%10===1&&s%100!==11?"день":(s%10>=2&&s%10<=4&&(s%100<10||s%100>=20))?"дня":"дней"} подряд с небом. Возвращайся, когда снова станет шумно.`;
+
+  show("result"); scr.result.scrollTop=0;
+}
+
+refreshStart();
+})();
+</script>
+
+<script>
+(() => {
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const inTg = !!(tg && tg.initData);
+  if (!inTg) return;
+  try { tg.ready(); tg.expand(); } catch(e) {}
+  try { tg.setHeaderColor("#0b1026"); tg.setBackgroundColor("#0b1026"); } catch(e) {}
+  try { tg.disableVerticalSwipes && tg.disableVerticalSwipes(); } catch(e) {}
+  window.__nbTap = (type) => {
+    try { type === "comet" ? tg.HapticFeedback.notificationOccurred("warning") : tg.HapticFeedback.impactOccurred("soft"); } catch(e) {}
+  };
+  // внутри бота ссылки на бота открываем без выхода из Telegram
+  document.querySelectorAll('a[href^="https://t.me/"]').forEach(a => {
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      try { tg.openTelegramLink(a.href); } catch(_) { location.href = a.href; }
+    });
+  });
+})();
+</script>
+</body>
+</html>
