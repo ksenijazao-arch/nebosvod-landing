@@ -393,7 +393,7 @@ function refreshStart(){
     : `Созвездие ${genOf(sign)} пока тёмное.<br>Первая тайна о тебе откроется на <b>${THRESH[0]}</b> звёздах.`;
 }
 try{ if(store.bdate) $("bdate").value = store.bdate; }catch(e){}
-$("bdate").addEventListener("input", ()=>{ store.bdate=$("bdate").value; save(store); refreshStart(); });
+$("bdate").addEventListener("input", ()=>{ store.bdate=$("bdate").value; store.bdateManual=true; save(store); refreshStart(); });
 $("chips").addEventListener("click", e=>{
   const b = e.target.closest(".chip"); if(!b) return;
   forcedMode = b.dataset.mode;
@@ -765,6 +765,19 @@ async function pairCall(path, body){
   if(!r.ok) throw new Error("status "+r.status);
   const j = await r.json(); return j.pair;
 }
+// Дата рождения из бота: человек уже вводил её при разборе, повторно не просим
+(async function(){
+  const tg = tgApp(); if(!tg) return;
+  try{
+    const r = await fetch(API+"/game/me",{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({initData:tg.initData})});
+    if(!r.ok) return;
+    const j = await r.json();
+    if(j.ok && j.date){
+      if(!store.bdateManual){ $("bdate").value=j.date; store.bdate=j.date; save(store); refreshStart(); }
+      const pd=$("pairDate"); if(pd) pd.value=j.date;
+    }
+  }catch(e){}
+})();
 function pairInviteLink(code){
   const link = "https://t.me/nebosvod_astro_bot?start=pair_"+code;
   return "https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent("Зову тебя в наше общее небо 💞 Ловим звёзды вдвоём, и созвездие расскажет, что нас связывает.");
