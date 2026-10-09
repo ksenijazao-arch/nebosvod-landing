@@ -83,6 +83,8 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .intro .rules{display:flex;gap:18px;font-size:13px;color:var(--muted);margin-top:6px;flex-wrap:wrap;justify-content:center}
 .intro .rules span{display:flex;align-items:center;gap:6px}
 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.snd{position:absolute;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;background:rgba(21,27,61,.7);color:var(--ink);font-size:18px;z-index:3;display:flex;align-items:center;justify-content:center}
+.intro{z-index:2}
 .tap-hint{margin-top:18px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.35}}
 
@@ -169,6 +171,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
       </div>
       <div class="mode-tag" id="modeTag"></div>
     </div>
+    <button class="snd" id="sndBtn" type="button">🔔</button>
     <div class="intro" id="intro">
       <span class="eyebrow">Сегодня на небе</span>
       <h2 id="introTitle">Спокойное небо</h2>
@@ -349,6 +352,56 @@ $("chips").addEventListener("click", e=>{
 });
 $("resetBtn").addEventListener("click", ()=>{ store={prog:{}}; save(store); refreshStart(); });
 
+
+/* ================= звук: тихие колокольчики ================= */
+const Snd = (() => {
+  let ac = null, out = null, on = true;
+  try { on = localStorage.getItem("nebosvod_sound") !== "off"; } catch(e) {}
+  // пентатоника: любые ноты подряд звучат как мелодия
+  const NOTES = [1046.5, 1174.7, 1318.5, 1568.0, 1760.0, 2093.0, 2349.3, 2637.0];
+  function init(){
+    if (ac) { if (ac.state === "suspended") ac.resume(); return; }
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      out = ac.createGain(); out.gain.value = 0.22;
+      const dly = ac.createDelay(); dly.delayTime.value = 0.19;
+      const fb = ac.createGain(); fb.gain.value = 0.32;
+      const wet = ac.createGain(); wet.gain.value = 0.28;
+      out.connect(ac.destination); out.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(ac.destination);
+    } catch(e) { ac = null; }
+  }
+  function bell(f, t, vol, dur){
+    [[1,1],[2.76,0.22],[5.4,0.07]].forEach(([m,g]) => {
+      const o = ac.createOscillator(), e = ac.createGain();
+      o.type = "sine"; o.frequency.value = f*m;
+      e.gain.setValueAtTime(0.0001, t);
+      e.gain.exponentialRampToValueAtTime(vol*g, t+0.006);
+      e.gain.exponentialRampToValueAtTime(0.0001, t+dur/m*1.2);
+      o.connect(e); e.connect(out); o.start(t); o.stop(t+dur+0.1);
+    });
+  }
+  function play(type, combo){
+    if (!on || !ac) return;
+    const t = ac.currentTime;
+    if (type === "comet") {
+      const o = ac.createOscillator(), e = ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(240, t); o.frequency.exponentialRampToValueAtTime(150, t+0.25);
+      e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(0.35, t+0.01); e.gain.exponentialRampToValueAtTime(0.0001, t+0.35);
+      o.connect(e); e.connect(out); o.start(t); o.stop(t+0.4);
+      return;
+    }
+    const f = NOTES[combo % NOTES.length];
+    if (type === "gold") { bell(f, t, 0.5, 1.6); bell(f*1.5, t+0.07, 0.35, 1.6); bell(f*2, t+0.14, 0.25, 1.4); }
+    else bell(f, t, 0.45, 1.2);
+  }
+  function toggle(){ on = !on; try { localStorage.setItem("nebosvod_sound", on ? "on" : "off"); } catch(e) {} if (on) init(); return on; }
+  return { init, play, toggle, get on(){ return on; } };
+})();
+const sndBtn = $("sndBtn");
+const paintSnd = () => { sndBtn.textContent = Snd.on ? "🔔" : "🔕"; sndBtn.setAttribute("aria-label", Snd.on ? "Выключить звук" : "Включить звук"); };
+paintSnd();
+sndBtn.addEventListener("pointerdown", e => { e.stopPropagation(); e.preventDefault(); Snd.toggle(); paintSnd(); });
+
 /* ================= игра ================= */
 const cv = $("sky"), ctx = cv.getContext("2d");
 let W=0,H=0,dpr=1, bg=null;
@@ -379,7 +432,7 @@ function startGame(){
 }
 $("playBtn").addEventListener("click", startGame);
 $("againBtn").addEventListener("click", startGame);
-$("intro").addEventListener("pointerdown", e=>{ e.preventDefault(); $("intro").hidden = true; G.running = true; G.t = 0; });
+$("intro").addEventListener("pointerdown", e=>{ e.preventDefault(); Snd.init(); $("intro").hidden = true; G.running = true; G.t = 0; });
 
 function spawn(){
   const p = G.t/DUR, mode=G.mode;
@@ -409,6 +462,7 @@ cv.addEventListener("pointerdown", e=>{
   if(!best) return;
   G.objs.splice(G.objs.indexOf(best),1);
   try{ window.__nbTap && window.__nbTap(best.type); }catch(_){}
+  Snd.play(best.type, G.combo);
   if(best.type==="comet"){
     G.score=Math.max(0,G.score-3); G.combo=0; G.shake=.15; G.flash=.18;
     burst(best.x,best.y,"#ff8a72",14); floatText(best.x,best.y,"−3","#ff8a72");
