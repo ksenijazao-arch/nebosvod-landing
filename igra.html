@@ -28,6 +28,7 @@
   color-scheme:dark;
 }
 html,body{height:100%}
+[hidden]{display:none!important}
 body{background:var(--night);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-tap-highlight-color:transparent}
 #app{position:relative;height:100%;max-width:480px;margin:0 auto;background:radial-gradient(120% 70% at 50% 0%, var(--veil) 0%, var(--night) 60%)}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;padding:24px 20px 28px}
@@ -90,6 +91,14 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .overlay img{max-height:70%;max-width:100%;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
 .overlay p{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--ink);max-width:30ch}
 .toast{position:absolute;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--gold);color:var(--night);font-weight:700;text-align:center;padding:14px;border-radius:14px;z-index:11;font-size:15px}
+#pair{gap:18px}
+.pair-head{display:flex;flex-direction:column;gap:6px;padding-top:8px}
+.pair-head h2{font-size:34px;color:var(--gold);line-height:1.1}
+.pair-signs{font-size:14px;color:var(--muted)}
+.pair-sky svg{width:100%;max-width:100%;height:auto;display:block}
+.pair-who{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pair-who b{color:var(--ink);font-weight:600}
+.pair-wait{border:1px dashed rgba(232,200,138,.4);border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5}
 .tap-hint{margin-top:18px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.35}}
 
@@ -207,6 +216,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 
     <div class="frags" id="frags"></div>
     <button class="btn btn-ghost story-btn" id="storyBtn" type="button">📲 Картинка для сторис</button>
+    <button class="btn btn-ghost" id="pairBtn" type="button">💞 Сыграть вдвоём</button>
 
     <div class="tomorrow">
       <span class="eyebrow">Завтра на небе</span>
@@ -219,6 +229,33 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
       <a class="btn btn-gold" id="ctaForecast" href="https://t.me/nebosvod_astro_bot?start=game_forecast" target="_blank" rel="noopener">Что ждёт меня завтра</a>
       <a class="btn btn-ghost" id="ctaFree" href="https://t.me/nebosvod_astro_bot?start=game" target="_blank" rel="noopener">Разбор моей карты</a>
       <button class="btn btn-ghost" id="againBtn">Ещё немного неба</button>
+    </div>
+  </section>
+  <section class="screen" id="pair" aria-label="Наше небо" hidden>
+    <div class="pair-head">
+      <span class="eyebrow">Две орбиты · наше небо</span>
+      <h2 id="pairTitle">Наше небо</h2>
+      <span class="pair-signs" id="pairSigns"></span>
+    </div>
+    <div class="pair-join" id="pairJoin" hidden>
+      <div class="field">
+        <label for="pairDate">Твоя дата рождения</label>
+        <input type="date" id="pairDate" value="1993-08-20" min="1930-01-01" max="2015-12-31">
+      </div>
+      <button class="btn btn-gold" id="pairJoinBtn" type="button" style="margin-top:12px">Войти в наше небо</button>
+    </div>
+    <div id="pairBody">
+      <div class="pair-sky"><svg id="pairSvg" viewBox="0 0 200 110" aria-hidden="true"></svg></div>
+      <div class="progress"><i id="pairProg" style="width:0"></i></div>
+      <div class="pair-who" id="pairWho"></div>
+      <div class="pair-wait" id="pairWait" hidden></div>
+      <div class="frags" id="pairFrags"></div>
+      <div class="ctas">
+        <button class="btn btn-gold" id="pairPlay" type="button">Ловить звёзды в наше небо</button>
+        <button class="btn btn-ghost" id="pairInvite" type="button" hidden>Позвать ещё раз</button>
+        <a class="btn btn-ghost" id="pairCompat" href="https://t.me/nebosvod_astro_bot?start=pair_compat" target="_blank" rel="noopener">💞 Полная совместимость, 199 ₽</a>
+        <button class="btn-quiet" id="pairHome" type="button">Моё небо</button>
+      </div>
     </div>
   </section>
   <div class="overlay" id="storyOverlay" hidden>
@@ -315,7 +352,7 @@ let store = load(); if(!store.prog) store.prog={};
 
 /* ================= элементы ================= */
 const $ = id => document.getElementById(id);
-const scr = {start:$("start"),game:$("game"),result:$("result")};
+const scr = {start:$("start"),game:$("game"),result:$("result"),pair:$("pair")};
 function show(k){ for(const n in scr) scr[n].hidden = n!==k; }
 
 let forcedMode = "auto";
@@ -355,7 +392,8 @@ function refreshStart(){
     ? `Созвездие ${genOf(sign)}: <b>${Math.min(total,NEED)} из ${NEED}</b> звёзд.<br>Открыто ${opened} из 3 тайн о тебе.`
     : `Созвездие ${genOf(sign)} пока тёмное.<br>Первая тайна о тебе откроется на <b>${THRESH[0]}</b> звёздах.`;
 }
-$("bdate").addEventListener("input", refreshStart);
+try{ if(store.bdate) $("bdate").value = store.bdate; }catch(e){}
+$("bdate").addEventListener("input", ()=>{ store.bdate=$("bdate").value; save(store); refreshStart(); });
 $("chips").addEventListener("click", e=>{
   const b = e.target.closest(".chip"); if(!b) return;
   forcedMode = b.dataset.mode;
@@ -431,7 +469,8 @@ let G = null, raf = 0;
 function startGame(){
   const sign = signOf($("bdate").value);
   const mode = currentMode();
-  G = {sign, mode, score:0, combo:0, best:0, caught:0, objs:[], parts:[], floats:[], t:0, last:0, spawnAcc:0, running:false, shake:0, flash:0, prevTotal: store.prog[sign]||0};
+  G = {sign, mode, score:0, combo:0, best:0, caught:0, objs:[], parts:[], floats:[], t:0, last:0, spawnAcc:0, running:false, shake:0, flash:0, prevTotal: store.prog[sign]||0, pairCode: pairPlay ? pairCode : null};
+  pairPlay = false;
   show("game"); resize();
   const m = MODES[mode];
   $("introTitle").textContent = m.name; $("introDesc").textContent = m.desc;
@@ -613,7 +652,7 @@ function finish(){
   const s=store.streak||1;
   $("streak").textContent = `Серия: ${s} ${s%10===1&&s%100!==11?"день":(s%10>=2&&s%10<=4&&(s%100<10||s%100>=20))?"дня":"дней"} подряд с небом. Возвращайся, когда снова станет шумно.`;
 
-  show("result"); scr.result.scrollTop=0;
+  if(G.pairCode){ submitPairScore(G.score); } else { show("result"); scr.result.scrollTop=0; }
 }
 
 
@@ -696,7 +735,112 @@ $("storyBtn").addEventListener("click", async ()=>{
   }finally{ btn.disabled=false; btn.textContent=label; }
 });
 
+
+/* ================= «Две орбиты»: игра вдвоём ================= */
+const API = "https://nebosvod-bot.onrender.com";
+const ELEM = {"Овен":"fire","Лев":"fire","Стрелец":"fire","Телец":"earth","Дева":"earth","Козерог":"earth",
+  "Близнецы":"air","Весы":"air","Водолей":"air","Рак":"water","Скорпион":"water","Рыбы":"water"};
+const PAIR_TITLES = ["Что вас притягивает","Где вы искрите","Чему вы учите друг друга"];
+const PAIR_LOCK = "Где вы можете ранить друг друга";
+const PAIR_TH = [40,100,160], PAIR_NEED = 200;
+const PAIR_TXT = {
+ "fire|fire":["Вас тянет друг к другу как два костра: рядом с вами становится жарко и весело. Вы заводите друг друга с полуслова.","Каждый хочет быть первым. Спор о том, кто прав, может длиться дольше, чем сам повод.","Вы учите друг друга смелости: рядом с вами страшно только стоять на месте."],
+ "earth|fire":["Огонь видит в земле опору, земля в огне — жизнь, которой ей не хватало. Один зажигает, другой удерживает.","Одному хочется сейчас, другому надёжно. Скорость против терпения: отсюда половина ваших ссор.","Огонь учит землю рисковать, земля учит огонь доводить начатое до конца."],
+ "air|fire":["Воздух раздувает огонь: вам вместе легко, смешно и всегда есть о чём поговорить.","Вы оба быстро загораетесь и так же быстро скучаете. Опасно, если никто не захочет быть тем, кто держит.","Огонь учит воздух действовать, воздух учит огонь думать, прежде чем прыгнуть."],
+ "fire|water":["Вас тянет к противоположности: огонь хочет глубины, вода хочет тепла. Отсюда сильное, почти магнитное притяжение.","Огонь говорит резко и забывает, вода запоминает каждое слово. Одна неосторожная фраза — и пар.","Огонь учит воду не бояться своих желаний, вода учит огонь бережности."],
+ "earth|earth":["Вы строители. Вам спокойно вместе, потому что оба знаете цену обещанию.","Упрямство на упрямство. Если оба упёрлись, стоять так можно неделями.","Вы учите друг друга, что надёжность тоже бывает нежной."],
+ "air|earth":["Воздух приносит идеи, земля превращает их во что-то настоящее. Вместе вы строите то, что один бы только придумал.","Одному нужен план, другому свобода. Земля зовёт воздух легкомысленным, воздух землю скучной.","Земля учит воздух держать слово, воздух учит землю смотреть шире привычного."],
+ "earth|water":["Вода питает землю, земля даёт воде берега. Одна из самых тёплых и естественных пар зодиака.","Вода ждёт, что её почувствуют без слов, а земля не понимает намёков. Обиды копятся тихо.","Вода учит землю чувствовать, земля учит воду не тонуть в чувствах."],
+ "air|air":["Вы на одной волне: разговоры до утра, общие шутки и лёгкость, с которой не бывает скучно.","Много слов и мало дела. Кому-то придётся сказать: хватит обсуждать, давай сделаем.","Вы учите друг друга, что свобода вдвоём возможна."],
+ "air|water":["Воздух завораживает воду лёгкостью, вода воздух глубиной. Каждый видит в другом то, чего нет в себе.","Воде нужно, чтобы её чувства приняли всерьёз, а воздух пытается объяснить их логикой. Отсюда слёзы и недоумение.","Воздух учит воду отпускать, вода учит воздух чувствовать по-настоящему."],
+ "water|water":["Вы понимаете друг друга без слов. Иногда кажется, что знакомы всю жизнь.","Две волны эмоций сразу. Если оба утонули в обиде, вытащить некому.","Вы учите друг друга, что уязвимость — это сила."]
+};
+const pairKey = (a,b) => [ELEM[a],ELEM[b]].sort().join("|");
+let pairCode = null, pairState = null, pairPlay = false;
+try { pairCode = (new URLSearchParams(location.search).get("pair")||"").replace(/[^0-9a-f]/g,"").slice(0,8) || null; } catch(e) {}
+const tgApp = () => { const t = window.Telegram && window.Telegram.WebApp; return t && t.initData ? t : null; };
+async function pairCall(path, body){
+  const tg = tgApp(); if(!tg) throw new Error("no telegram");
+  const r = await fetch(API+path,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(Object.assign({initData:tg.initData},body))});
+  if(!r.ok) throw new Error("status "+r.status);
+  const j = await r.json(); return j.pair;
+}
+function pairInviteLink(code){
+  const link = "https://t.me/nebosvod_astro_bot?start=pair_"+code;
+  return "https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent("Зову тебя в наше общее небо 💞 Ловим звёзды вдвоём, и созвездие расскажет, что нас связывает.");
+}
+function openInvite(code){
+  const tg = tgApp(); const u = pairInviteLink(code);
+  try { tg ? tg.openTelegramLink(u) : window.open(u,"_blank"); } catch(e) { location.href = u; }
+}
+function drawPairSky(p, total){
+  const svg=$("pairSvg"); let h="";
+  const part=(sign, ox, frac)=>{ const sh=SHAPES[sign]; const lit=Math.floor(sh.p.length*frac); const P=([x,y])=>[ox+x*0.9, 8+y*0.9];
+    sh.e.forEach(([a,b])=>{ const on=a<lit&&b<lit, p1=P(sh.p[a]), p2=P(sh.p[b]);
+      h+=`<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="${on?'#e8c88a':'#9298bd'}" stroke-opacity="${on?.85:.25}" stroke-width="${on?.9:.6}" ${on?'':'stroke-dasharray="1.5 2"'}/>`; });
+    sh.p.forEach((pt,i)=>{ const [x,y]=P(pt); if(i<lit){ h+=`<circle cx="${x}" cy="${y}" r="7" fill="#e8c88a" fill-opacity=".14"/><circle cx="${x}" cy="${y}" r="3.2" fill="#e8c88a"/>`; } else h+=`<circle cx="${x}" cy="${y}" r="1.8" fill="#9298bd" fill-opacity=".5"/>`; });
+    return P(sh.p[sh.p.length-1]);
+  };
+  const frac=Math.min(1,total/PAIR_NEED);
+  const endA=part(p.a.sign,4,frac);
+  if(p.b){ const sb=SHAPES[p.b.sign]; part(p.b.sign,106,frac); const s=[106+sb.p[0][0]*0.9, 8+sb.p[0][1]*0.9];
+    h+=`<path d="M${endA[0]} ${endA[1]} Q100 ${Math.min(endA[1],s[1])-30} ${s[0]} ${s[1]}" fill="none" stroke="#e8c88a" stroke-opacity="${.25+.6*frac}" stroke-width=".8" stroke-dasharray="2 2.5"/>`; }
+  else { h+=`<circle cx="150" cy="55" r="22" fill="none" stroke="#9298bd" stroke-opacity=".4" stroke-dasharray="2 3"/><text x="150" y="58" text-anchor="middle" font-size="7" fill="#9298bd">ждём</text>`; }
+  svg.innerHTML=h;
+}
+function renderPair(p, opts={}){
+  pairState=p; show("pair"); scr.pair.scrollTop=0;
+  const joining = !p.me;
+  $("pairJoin").hidden = !joining; $("pairBody").hidden = joining;
+  if(joining){ $("pairTitle").textContent = `${p.a.name} зовёт тебя в общее небо`; $("pairSigns").textContent = `Знак: ${p.a.sign}. Введи свою дату рождения, и ваши звёзды начнут складываться в одно созвездие.`; return; }
+  const total = p.a.stars + (p.b ? p.b.stars : 0);
+  $("pairTitle").textContent = p.b ? `${p.a.name} и ${p.b.name}` : "Наше небо";
+  $("pairSigns").textContent = p.b ? `${p.a.sign} и ${p.b.sign}` : `${p.a.sign} ждёт вторую орбиту`;
+  drawPairSky(p,total);
+  $("pairProg").style.width = Math.min(100,total/PAIR_NEED*100)+"%";
+  $("pairWho").innerHTML = p.b ? `<span>${p.a.name}: <b>${p.a.stars}</b></span><span>всего <b>${total}</b> из ${PAIR_NEED}</span><span>${p.b.name}: <b>${p.b.stars}</b></span>` : `<span>Твои звёзды: <b>${p.a.stars}</b></span>`;
+  $("pairWait").hidden = !!p.b;
+  $("pairWait").textContent = "Приглашение отправлено. Как только вторая орбита войдёт, бот тебе напишет. А пока можно ловить звёзды: они уже идут в общее небо.";
+  $("pairInvite").hidden = !!p.b;
+  if(p.b){
+    const tx = PAIR_TXT[pairKey(p.a.sign,p.b.sign)];
+    let html = PAIR_TH.map((th,i)=> total>=th
+      ? `<div class="frag ${opts.prev!==undefined&&opts.prev<th?'new':''}"><h3>${PAIR_TITLES[i]}</h3><p>${tx[i]}</p></div>`
+      : `<div class="frag locked"><h3>🔒 ${PAIR_TITLES[i]}</h3><p>Откроется на ${th} звёздах вместе. Ещё ${th-total}.</p></div>`).join("");
+    html += `<div class="frag locked"><h3>🔒 ${PAIR_LOCK}</h3><p>${total>=PAIR_TH[2] ? "Эту тайну небо по знакам не расскажет. Её покажет полная совместимость по датам рождения обоих." : "Самая важная тайна пары. Её покажет полная совместимость по датам рождения."}</p></div>`;
+    $("pairFrags").innerHTML = html;
+  } else $("pairFrags").innerHTML = "";
+}
+async function openPair(){
+  if(!tgApp()){ show("start"); toast("Играть вдвоём можно в Telegram, в боте @nebosvod_astro_bot"); return; }
+  try{ const p = await pairCall("/pair/state",{code:pairCode}); renderPair(p); }
+  catch(e){ show("start"); toast("Не нашла это небо. Попросите прислать приглашение ещё раз."); }
+}
+$("pairJoinBtn").addEventListener("click", async ()=>{
+  const sign=signOf($("pairDate").value); $("bdate").value=$("pairDate").value; store.bdate=$("pairDate").value; save(store);
+  try{ const p=await pairCall("/pair/state",{code:pairCode,sign}); renderPair(p); toast("Ты в общем небе 💞"); }
+  catch(e){ toast("Не получилось войти. Попробуйте ещё раз."); }
+});
+$("pairBtn").addEventListener("click", async ()=>{
+  if(!tgApp()){ toast("Играть вдвоём можно в Telegram, в боте @nebosvod_astro_bot"); return; }
+  const btn=$("pairBtn"); btn.disabled=true;
+  try{ const sign=G?G.sign:signOf($("bdate").value); const p=await pairCall("/pair/create",{sign});
+       pairCode=p.code; renderPair(p); openInvite(p.code); }
+  catch(e){ toast("Не получилось создать общее небо. Попробуйте через минуту."); }
+  finally{ btn.disabled=false; }
+});
+$("pairInvite").addEventListener("click", ()=>{ if(pairCode) openInvite(pairCode); });
+$("pairPlay").addEventListener("click", ()=>{ pairPlay=true; startGame(); });
+$("pairHome").addEventListener("click", ()=>{ pairCode=null; refreshStart(); show("start"); });
+async function submitPairScore(stars){
+  const prev = pairState ? pairState.a.stars + (pairState.b?pairState.b.stars:0) : 0;
+  try{ const p=await pairCall("/pair/score",{code:G.pairCode,stars}); renderPair(p,{prev}); toast(`+${stars} звёзд в наше небо`); }
+  catch(e){ show("result"); toast("Звёзды не дошли до общего неба. Проверьте интернет."); }
+}
+if(pairCode){ openPair(); }
+
 refreshStart();
+if(pairCode) show("pair");
 })();
 </script>
 
