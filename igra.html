@@ -85,6 +85,11 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
 .snd{position:absolute;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;background:rgba(21,27,61,.7);color:var(--ink);font-size:18px;z-index:3;display:flex;align-items:center;justify-content:center}
 .intro{z-index:2}
+.story-btn{margin-top:4px}
+.overlay{position:absolute;inset:0;background:rgba(5,7,18,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;z-index:10}
+.overlay img{max-height:70%;max-width:100%;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.overlay p{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--ink);max-width:30ch}
+.toast{position:absolute;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--gold);color:var(--night);font-weight:700;text-align:center;padding:14px;border-radius:14px;z-index:11;font-size:15px}
 .tap-hint{margin-top:18px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.35}}
 
@@ -201,6 +206,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     </div>
 
     <div class="frags" id="frags"></div>
+    <button class="btn btn-ghost story-btn" id="storyBtn" type="button">📲 Картинка для сторис</button>
 
     <div class="tomorrow">
       <span class="eyebrow">Завтра на небе</span>
@@ -215,6 +221,12 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
       <button class="btn btn-ghost" id="againBtn">Ещё немного неба</button>
     </div>
   </section>
+  <div class="overlay" id="storyOverlay" hidden>
+    <img id="storyImg" alt="Картинка для сторис">
+    <p>Нажмите и удерживайте картинку, чтобы сохранить её, и выложите в сторис.</p>
+    <button class="btn btn-gold" id="storyClose" type="button" style="max-width:320px">Готово</button>
+  </div>
+  <div class="toast" id="toast" hidden></div>
 </div>
 
 <script>
@@ -603,6 +615,86 @@ function finish(){
 
   show("result"); scr.result.scrollTop=0;
 }
+
+
+/* ================= картинка для сторис ================= */
+const STORY_API = "https://nebosvod-bot.onrender.com/game/story";
+function wrapText(ctx, text, x, y, maxW, lh){
+  const words = text.split(" "); let line = ""; const lines = [];
+  for (const w of words){ const t = line ? line + " " + w : w; if (ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  lines.forEach((l,i)=>ctx.fillText(l, x, y + i*lh));
+  return lines.length*lh;
+}
+async function makeStory(sign, total){
+  try { await Promise.all([document.fonts.load('64px "Philosopher"'), document.fonts.load('600 40px "Manrope"')]); } catch(e) {}
+  const W=1080, H=1920, c=document.createElement("canvas"); c.width=W; c.height=H;
+  const x=c.getContext("2d");
+  const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,"#1d2450"); g.addColorStop(.55,"#0b1026"); g.addColorStop(1,"#060914");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  let seed = sign.length*97 + total; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+  for(let i=0;i<420;i++){ x.fillStyle=`rgba(239,232,216,${.15+rnd()*.55})`; const r=rnd()*2.4+.4; x.beginPath(); x.arc(rnd()*W,rnd()*H,r,0,7); x.fill(); }
+  // заголовок
+  x.textAlign="center"; x.fillStyle="#9298bd"; x.font='600 30px Manrope, sans-serif';
+  x.fillText("М О Й   Н Е Б О С В О Д", W/2, 170);
+  x.fillStyle="#e8c88a"; x.font='84px Philosopher, Georgia, serif';
+  x.fillText("Созвездие " + genOf(sign), W/2, 280);
+  // созвездие
+  const sh=SHAPES[sign], lit=litFor(sign,total), S=760, ox=(W-S)/2, oy=360;
+  const P=([a,b])=>[ox+a/100*S, oy+b/100*S];
+  sh.e.forEach(([a,b])=>{ const on=a<lit&&b<lit, p1=P(sh.p[a]), p2=P(sh.p[b]);
+    x.strokeStyle= on ? "rgba(232,200,138,.85)" : "rgba(146,152,189,.3)"; x.lineWidth= on?4:2; x.setLineDash(on?[]:[8,10]);
+    x.beginPath(); x.moveTo(...p1); x.lineTo(...p2); x.stroke(); });
+  x.setLineDash([]);
+  sh.p.forEach((pt,i)=>{ const [px,py]=P(pt);
+    if(i<lit){ const gl=x.createRadialGradient(px,py,0,px,py,60); gl.addColorStop(0,"rgba(232,200,138,.55)"); gl.addColorStop(1,"rgba(232,200,138,0)");
+      x.fillStyle=gl; x.beginPath(); x.arc(px,py,60,0,7); x.fill(); x.fillStyle="#f3dcaa"; x.beginPath(); x.arc(px,py,15,0,7); x.fill(); }
+    else { x.fillStyle="rgba(146,152,189,.55)"; x.beginPath(); x.arc(px,py,8,0,7); x.fill(); } });
+  // прогресс
+  const shown=Math.min(total,NEED);
+  x.fillStyle="#efe8d8"; x.font='600 40px Manrope, sans-serif';
+  x.fillText(shown>=NEED ? "Созвездие собрано целиком" : `${shown} из ${NEED} звёзд`, W/2, 1210);
+  x.fillStyle="rgba(232,200,138,.18)"; x.fillRect(190,1240,700,8);
+  x.fillStyle="#e8c88a"; x.fillRect(190,1240,700*shown/NEED,8);
+  // тайна
+  const opened=THRESH.filter(t=>total>=t).length;
+  x.textAlign="left";
+  if(opened){
+    const i=opened-1;
+    x.fillStyle="#e8c88a"; x.font='56px Philosopher, Georgia, serif'; x.fillText(FRAG_TITLES[i], 150, 1370);
+    x.fillStyle="#efe8d8"; x.font='500 42px Manrope, sans-serif'; wrapText(x, FRAGS[sign][i], 150, 1450, 780, 60);
+  } else {
+    x.fillStyle="#efe8d8"; x.font='500 42px Manrope, sans-serif';
+    wrapText(x, `Собираю своё созвездие. На ${THRESH[0]} звёздах небо расскажет мне первую тайну обо мне.`, 150, 1400, 780, 60);
+  }
+  // подвал
+  x.textAlign="center"; x.fillStyle="#9298bd"; x.font='500 34px Manrope, sans-serif';
+  x.fillText("Побудь наедине со звёздами", W/2, 1790);
+  x.fillStyle="#e8c88a"; x.font='600 36px Manrope, sans-serif';
+  x.fillText("@nebosvod_astro_bot", W/2, 1845);
+  return c.toDataURL("image/jpeg", 0.88);
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>{t.hidden=true;},3500); }
+$("storyClose").addEventListener("click", ()=>{ $("storyOverlay").hidden=true; });
+$("storyBtn").addEventListener("click", async ()=>{
+  const btn=$("storyBtn"); if(btn.disabled) return;
+  btn.disabled=true; const label=btn.textContent; btn.textContent="Рисую картинку…";
+  try{
+    const sign=G?G.sign:signOf($("bdate").value), total=store.prog[sign]||0;
+    const url=await makeStory(sign,total);
+    const tg=window.Telegram&&window.Telegram.WebApp;
+    if(tg&&tg.initData){
+      btn.textContent="Отправляю в чат…";
+      const r=await fetch(STORY_API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({initData:tg.initData,image:url,sign})});
+      if(!r.ok) throw new Error("bad status "+r.status);
+      toast("Картинка уже в чате с ботом ✨");
+    } else {
+      $("storyImg").src=url; $("storyOverlay").hidden=false;
+    }
+  }catch(e){
+    toast("Не получилось отправить. Попробуйте ещё раз через минуту.");
+  }finally{ btn.disabled=false; btn.textContent=label; }
+});
 
 refreshStart();
 })();
